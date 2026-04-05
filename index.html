@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Garden of Honor — Gardener Application</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #c8b89a;
+      font-family: 'Courier Prime', monospace;
+      min-height: 100vh;
+    }
+
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 200;
+      opacity: 0.035;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+      background-size: 128px 128px;
+    }
+
+    .page-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem 5rem;
+      min-height: 100vh;
+    }
+
+    .paper {
+      background: #f5eedc;
+      width: 100%;
+      max-width: 680px;
+      border: 1px solid #b8a880;
+      padding: 3rem 3.5rem;
+      position: relative;
+      background-image: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 27px,
+        rgba(0,0,0,0.04) 27px,
+        rgba(0,0,0,0.04) 28px
+      );
+      box-shadow: 4px 4px 0 #a0906a, 8px 8px 0 #8a7a5a;
+    }
+
+    .paper::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 2.5rem;
+      width: 1px; height: 100%;
+      background: rgba(180,100,100,0.25);
+    }
+
+    .stamp {
+      position: absolute;
+      top: 1.5rem; right: 2rem;
+      border: 3px solid rgba(60,100,60,0.4);
+      color: rgba(60,100,60,0.4);
+      font-family: 'Special Elite', serif;
+      font-size: 9px;
+      letter-spacing: 2px;
+      padding: 6px 10px;
+      transform: rotate(5deg);
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .doc-header {
+      text-align: center;
+      border-bottom: 2px solid #8a7a5a;
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .doc-title {
+      font-family: 'Special Elite', serif;
+      font-size: 22px;
+      color: #2a2015;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 0.4rem;
+    }
+
+    .doc-subtitle { font-size: 11px; color: #5a4e38; letter-spacing: 2px; text-transform: uppercase; }
+    .form-number { font-size: 10px; color: #7a6a50; margin-top: 0.8rem; letter-spacing: 1px; }
+
+    .section-label {
+      font-family: 'Special Elite', serif;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #5a4e38;
+      text-transform: uppercase;
+      margin: 1.8rem 0 0.8rem;
+      border-bottom: 1px solid #c0ae88;
+      padding-bottom: 4px;
+    }
+
+    .field { margin-bottom: 1rem; }
+
+    .field label {
+      display: block;
+      font-size: 11px;
+      color: #5a4e38;
+      letter-spacing: 1px;
+      margin-bottom: 3px;
+    }
+
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid #8a7a5a;
+      font-family: 'Courier Prime', monospace;
+      font-size: 14px;
+      color: #1a1208;
+      padding: 4px 2px;
+      outline: none;
+      border-radius: 0;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .field textarea {
+      resize: none;
+      border: 1px solid #8a7a5a;
+      padding: 6px;
+      background: rgba(255,255,255,0.15);
+    }
+
+    .field input:focus, .field textarea:focus {
+      border-color: #3c5c3a;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .field select { cursor: pointer; }
+    .field select option { background: #f5eedc; color: #1a1208; }
+
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+
+    .checkbox-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+    .checkbox-item {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: #2a2015; cursor: pointer;
+    }
+
+    .checkbox-item input[type="checkbox"] {
+      width: 14px; height: 14px;
+      cursor: pointer; flex-shrink: 0;
+      -webkit-appearance: auto; appearance: auto;
+    }
+
+    .notice-box {
+      border: 1px solid #8a7a5a;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      font-size: 11px;
+      color: #4a3e2a;
+      line-height: 1.7;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .notice-box strong { font-weight: 700; }
+
+    .strange-field { opacity: 0; transition: opacity 0.8s ease; margin-bottom: 1rem; }
+    .strange-field.visible { opacity: 1; }
+
+    .hand-note {
+      font-family: 'Special Elite', serif;
+      font-size: 11px;
+      color: rgba(60,40,20,0.5);
+      transform: rotate(-1.5deg);
+      display: inline-block;
+      margin-top: 6px;
+    }
+
+    .guilt-note {
+      font-family: 'Special Elite', serif;
+      font-size: 10px;
+      color: rgba(80,40,20,0.45);
+      transform: rotate(0.8deg);
+      display: inline-block;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    .submit-area {
+      margin-top: 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .sig-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 2rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+
+    .sig-line {
+      width: 100%;
+      border-bottom: 1px solid #8a7a5a;
+      height: 32px;
+      font-size: 11px;
+      color: #7a6a50;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 4px;
+      letter-spacing: 1px;
+    }
+
+    .submit-btn {
+      font-family: 'Special Elite', serif;
+      font-size: 13px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      background: #2a3a28;
+      color: #d5c9a8;
+      border: none;
+      padding: 12px 40px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .submit-btn:hover { background: #1a2a18; }
+
+    .result-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20,15,5,0.92);
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 2rem;
+    }
+
+    .result-overlay.show { display: flex; }
+
+    .result-paper {
+      background: #f5eedc;
+      max-width: 480px;
+      width: 100%;
+      padding: 3rem;
+      text-align: center;
+      border: 1px solid #b8a880;
+      position: relative;
+    }
+
+    .result-title {
+      font-family: 'Special Elite', serif;
+      font-size: 14px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: #2a2015;
+      margin-bottom: 2rem;
+    }
+
+    .cipher-text {
+      font-family: 'Courier Prime', monospace;
+      font-size: 15px;
+      color: #1a1208;
+      line-height: 2.2;
+      letter-spacing: 3px;
+      word-spacing: 8px;
+      margin-bottom: 2rem;
+      border: 1px solid #8a7a5a;
+      padding: 1.5rem;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .result-note { font-size: 10px; color: #7a6a50; letter-spacing: 2px; text-transform: uppercase; }
+
+    .close-result {
+      position: absolute;
+      top: 1rem; right: 1.2rem;
+      background: none; border: none;
+      font-size: 18px; color: #7a6a50;
+      cursor: pointer;
+      font-family: 'Courier Prime', monospace;
+    }
+
+    /* ── Blasphemous overlay ── */
+    #blasphemous-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding: 1.2rem 1.6rem;
+      gap: 0;
+    }
+
+    .blsp-word {
+      font-family: 'Special Elite', serif;
+      font-size: 72px;
+      line-height: 0.88;
+      letter-spacing: 6px;
+      color: #cc0000;
+      text-transform: uppercase;
+      transform: scaleY(1.9);
+      transform-origin: top right;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      display: block;
+      text-align: right;
+    }
+
+    .blsp-word.show { opacity: 1; }
+
+    /* flood mode — covers everything */
+    #blasphemous-flood {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #cc0000;
+      display: none;
+      overflow: hidden;
+      padding: 0.5rem 1rem;
+    }
+
+    #blasphemous-flood .flood-text {
+      font-family: 'Special Elite', serif;
+      font-size: 80px;
+      line-height: 0.85;
+      letter-spacing: 8px;
+      color: #ff0000;
+      text-transform: uppercase;
+      transform: scaleY(2.1);
+      transform-origin: top left;
+      white-space: normal;
+      word-break: break-all;
+      display: block;
+      mix-blend-mode: multiply;
+    }
+
+    @media (max-width: 560px) {
+      .paper { padding: 2rem 1.5rem; }
+      .field-row { grid-template-columns: 1fr; gap: 1rem; }
+      .sig-row { grid-template-columns: 1fr; gap: 1rem; }
+      .blsp-word { font-size: 44px; }
+      #blasphemous-flood .flood-text { font-size: 48px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <div class="paper">
+    <div class="stamp">OFFICIAL<br>DOCUMENT<br>GOH-FORM-7</div>
+
+    <div class="doc-header">
+      <div class="doc-title">The Garden of Honor</div>
+      <div class="doc-subtitle">Gardener Application &amp; Enrollment Form</div>
+      <div class="form-number">Form GOH-7 &nbsp;&nbsp;|&nbsp;&nbsp; Please complete all fields in full &nbsp;&nbsp;|&nbsp;&nbsp; Do not leave blank</div>
+    </div>
+
+    <div class="notice-box">
+      <strong>IMPORTANT NOTICE:</strong> By submitting this form, the applicant acknowledges full understanding of the duties, expectations, and <em>responsibilities</em> of a certified Gardener. The Garden of Honor accepts no liability for outcomes arising during the cultivation process. Purity is the objective. The method is the Gardener's burden to bear.
+    </div>
+
+    <div class="section-label">Section I — Personal Information</div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>FULL NAME</label>
+        <input type="text" id="f-name" />
+      </div>
+      <div class="field">
+        <label>DATE OF BIRTH</label>
+        <input type="text" placeholder="DD / MM / YYYY" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>CURRENT PLACE OF RESIDENCE</label>
+      <input type="text" />
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label>OCCUPATION (PRIOR TO APPLICATION)</label>
+        <input type="text" />
+      </div>
+      <div class="field">
+        <label>YEARS OF OUTDOOR EXPERIENCE</label>
+        <input type="text" />
+      </div>
+    </div>
+
+    <div class="section-label">Section II — Horticultural Background</div>
+
+    <div class="field">
+      <label>WHAT HAVE YOU SUCCESSFULLY GROWN IN THE PAST?</label>
+      <textarea rows="2"></textarea>
+    </div>
+
+    <div class="field">
+      <label>PREFERRED METHOD OF CARE</label>
+      <select>
+        <option value="">— Select One —</option>
+        <option>Attentive daily tending</option>
+        <option>Structured weekly schedules</option>
+        <option>Minimal intervention / natural growth</option>
+        <option>I prefer to observe from a distance</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>DO YOU HAVE EXPERIENCE WITH ANY OF THE FOLLOWING?</label>
+      <div class="checkbox-group">
+        <label class="checkbox-item"><input type="checkbox" /> Soil conditioning and preparation</label>
+        <label class="checkbox-item"><input type="checkbox" /> Pruning and controlled growth</label>
+        <label class="checkbox-item"><input type="checkbox" /> Grafting and cross-cultivation</label>
+        <label class="checkbox-item"><input type="checkbox" id="cb-listen" onchange="revealStrange()" /> Communicating with plants</label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>IN YOUR EXPERIENCE, WHEN SOMETHING IN YOUR CARE HAS SUFFERED — WHO DID YOU HOLD RESPONSIBLE?</label>
+      <select>
+        <option value="">— Select One —</option>
+        <option>Myself. I should have done more.</option>
+        <option>Circumstance. Some things cannot be prevented.</option>
+        <option>The thing itself. It did not try hard enough.</option>
+        <option>I do not assign responsibility. I simply continue.</option>
+      </select>
+      <div class="guilt-note">* responses are weighted and retained indefinitely</div>
+    </div>
+
+    <div class="section-label">Section III — Suitability Assessment</div>
+
+    <div class="field">
+      <label>HOW DO YOU FEEL ABOUT PROLONGED SILENCE?</label>
+      <select>
+        <option value="">— Select One —</option>
+        <option>Comfortable. I enjoy quiet.</option>
+        <option>Manageable with purpose.</option>
+        <option>Unsettling, but I can adapt.</option>
+        <option>I have never experienced it.</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>THE GARDEN REQUIRES DIFFICULT DECISIONS IN THE INTEREST OF PURITY. ARE YOU PREPARED TO ACT WITHOUT HESITATION?</label>
+      <select>
+        <option value="">— Select One —</option>
+        <option>Yes. Hesitation helps no one.</option>
+        <option>I believe so, given clear instruction.</option>
+        <option>I may need time. But I will act.</option>
+        <option>I do not yet understand what will be asked of me.</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>DESCRIBE YOUR RELATIONSHIP WITH PATIENCE</label>
+      <textarea id="patience-field" rows="2"></textarea>
+    </div>
+
+    <div class="strange-field" id="sf1">
+      <div class="field">
+        <label>SOME THINGS MUST BE ENCOURAGED TOWARD PURITY THROUGH MEANS THAT APPEAR, ON THE SURFACE, UNKIND. HOW DO YOU RECONCILE THIS?</label>
+        <select>
+          <option value="">— Select One —</option>
+          <option>The outcome justifies the process.</option>
+          <option>I trust the Garden knows what is necessary.</option>
+          <option>I do not reconcile it. I do what is required.</option>
+          <option>I have not thought about it that way before.</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="strange-field" id="sf2">
+      <div class="field">
+        <label>WHAT IS YOUR UNDERSTANDING OF THE RAIN?</label>
+        <select>
+          <option value="">— Select One —</option>
+          <option>A reward. For those who deserve it.</option>
+          <option>An inevitability. It comes regardless.</option>
+          <option>A destination. Not all will reach it.</option>
+          <option>I understand only that it is not for me.</option>
+        </select>
+        <div class="hand-note">* only the pure are taken. this is known.</div>
+      </div>
+    </div>
+
+    <div class="strange-field" id="sf3">
+      <div class="field">
+        <label>WHICH BEST DESCRIBES YOU?</label>
+        <div class="checkbox-group">
+          <label class="checkbox-item"><input type="checkbox" /> I understand that rot is a failure of will, not circumstance.</label>
+          <label class="checkbox-item"><input type="checkbox" /> I am comfortable being the last to know the full purpose of my role.</label>
+          <label class="checkbox-item"><input type="checkbox" /> I accept that some things must be processed before they can be at peace.</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-label" style="margin-top:2rem;">Section IV — Declaration</div>
+
+    <div class="notice-box" style="font-size:10px; line-height:1.8;">
+      The undersigned affirms that all information provided is accurate and complete, and that they enter the Garden of Honor willingly. I understand that my role is to ensure purity — not to question what purity costs. The Garden keeps its own records. What happens within the Garden remains within the Garden's jurisdiction.
+    </div>
+
+    <div class="submit-area">
+      <div class="sig-row">
+        <div>
+          <div class="sig-line"></div>
+          <div style="font-size:10px;color:#7a6a50;margin-top:4px;letter-spacing:1px;">SIGNATURE OF APPLICANT</div>
+        </div>
+        <div>
+          <div class="sig-line"></div>
+          <div style="font-size:10px;color:#7a6a50;margin-top:4px;letter-spacing:1px;">DATE</div>
+        </div>
+      </div>
+      <button class="submit-btn" onclick="submitForm()">Submit Application</button>
+      <div style="font-size:10px;color:#7a6a50;letter-spacing:1px;margin-top:0.5rem;">Processing time: indeterminate</div>
+    </div>
+  </div>
+</div>
+
+<!-- Normal cipher result -->
+<div class="result-overlay" id="result-overlay">
+  <div class="result-paper">
+    <button class="close-result" onclick="document.getElementById('result-overlay').classList.remove('show')">&#x2715;</button>
+    <div class="result-title">Application Received</div>
+    <div class="cipher-text" id="cipher-output"></div>
+    <div class="result-note">retain this message for your records</div>
+  </div>
+</div>
+
+<!-- Blasphemous: drip layer (stays over the page) -->
+<div id="blasphemous-overlay"></div>
+
+<!-- Blasphemous: full flood layer -->
+<div id="blasphemous-flood">
+  <span class="flood-text" id="flood-text"></span>
+</div>
+
+<script>
+  // ── Patience field escalation ──
+  document.getElementById('patience-field').addEventListener('keyup', function () {
+    var len = this.value.trim().length;
+    if (len > 15) document.getElementById('sf1').classList.add('visible');
+    if (len > 40) document.getElementById('sf2').classList.add('visible');
+    if (len > 70) document.getElementById('sf3').classList.add('visible');
+  });
+
+  function revealStrange() {
+    if (document.getElementById('cb-listen').checked) {
+      document.getElementById('sf1').classList.add('visible');
+      document.getElementById('sf2').classList.add('visible');
+      setTimeout(function () { document.getElementById('sf3').classList.add('visible'); }, 600);
+    }
+  }
+
+  // ── Cipher messages ──
+  // Decoded:
+  // "The fruits do not choose the violence. You do."
+  // "The rain does not come for the unworthy. It comes for the pure."
+  // "Rotting is a choice. So is the juicing."
+  // "You will be thanked for your service. The fruits will not."
+  // "The second garden has no gardeners."
+  var messages = [
+    "WKH IUXLWV GR QRW FKRRVH WKH YLROHQFH. BRX GR.",
+    "WKH UDLQ GRHV QRW FRPH IRU WKH XQZRUWKB. LW FRPHV IRU WKH SXUH.",
+    "URWWLQJ LV D FKRLFH. VR LV WKH MXLFLQJ.",
+    "BRX ZLOO EH WKDQNHG IRU BRXU VHUYLFH. WKH IUXLWV ZLOO QRW.",
+    "WKH VHFRQG JDUGHQ KDV QR JDUGHQHUV.",
+  ];
+
+  // ── Sevirah check ──
+  function isSevirah(name) {
+    return name.trim().toLowerCase() === 'sevirah';
+  }
+
+  // ── Blasphemous easter egg ──
+  function triggerBlasphemous() {
+    var overlay = document.getElementById('blasphemous-overlay');
+    var flood = document.getElementById('blasphemous-flood');
+    var floodText = document.getElementById('flood-text');
+
+    var words = [];          // DOM elements currently dripping
+    var delay = 1800;        // starting gap between words (ms) — slow and quiet
+    var minDelay = 28;       // floor before flood triggers
+    var decayRate = 0.72;    // how fast the interval collapses each step
+    var step = 0;
+    var floodThreshold = 11; // number of dripped words before flood
+
+    function drip() {
+      // Create a new word element anchored top-right
+      var el = document.createElement('span');
+      el.className = 'blsp-word';
+      el.textContent = 'Blasphemous';
+      overlay.appendChild(el);
+      words.push(el);
+
+      // Trigger reflow then show
+      void el.offsetWidth;
+      el.classList.add('show');
+
+      step++;
+      delay = Math.max(minDelay, delay * decayRate);
+
+      if (step < floodThreshold) {
+        setTimeout(drip, delay);
+      } else {
+        // Brief pause at maximum drip density, then flood
+        setTimeout(triggerFlood, 320);
+      }
+    }
+
+    function triggerFlood() {
+      // Hide the drip layer
+      overlay.style.display = 'none';
+
+      // Fill flood layer with wall-to-wall text
+      var chunk = 'BLASPHEMOUS ';
+      var wall = '';
+      for (var i = 0; i < 6000; i++) { wall += chunk; }
+      floodText.textContent = wall;
+
+      flood.style.display = 'block';
+
+      // Let the browser render the flood fully, then freeze
+      setTimeout(function () {
+        // Infinite loop — freezes the tab
+        while (true) {} // eslint-disable-line no-constant-condition
+      }, 900);
+    }
+
+    // Kick off
+    setTimeout(drip, 300);
+  }
+
+  // ── Submit ──
+  function submitForm() {
+    var nameVal = document.getElementById('f-name').value;
+
+    if (isSevirah(nameVal)) {
+      triggerBlasphemous();
+      return;
+    }
+
+    var msg = messages[Math.floor(Math.random() * messages.length)];
+    document.getElementById('cipher-output').textContent = msg;
+    document.getElementById('result-overlay').classList.add('show');
+  }
+</script>
+
+</body>
+</html>
