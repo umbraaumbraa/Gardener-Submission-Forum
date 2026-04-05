@@ -8,12 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
 
     body {
@@ -27,7 +22,7 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 9999;
+      z-index: 200;
       opacity: 0.035;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
       background-size: 128px 128px;
@@ -61,19 +56,16 @@
     .paper::before {
       content: '';
       position: absolute;
-      top: 0;
-      left: 2.5rem;
-      width: 1px;
-      height: 100%;
-      background: rgba(180, 100, 100, 0.25);
+      top: 0; left: 2.5rem;
+      width: 1px; height: 100%;
+      background: rgba(180,100,100,0.25);
     }
 
     .stamp {
       position: absolute;
-      top: 1.5rem;
-      right: 2rem;
-      border: 3px solid rgba(60, 100, 60, 0.4);
-      color: rgba(60, 100, 60, 0.4);
+      top: 1.5rem; right: 2rem;
+      border: 3px solid rgba(60,100,60,0.4);
+      color: rgba(60,100,60,0.4);
       font-family: 'Special Elite', serif;
       font-size: 9px;
       letter-spacing: 2px;
@@ -99,19 +91,8 @@
       margin-bottom: 0.4rem;
     }
 
-    .doc-subtitle {
-      font-size: 11px;
-      color: #5a4e38;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-
-    .form-number {
-      font-size: 10px;
-      color: #7a6a50;
-      margin-top: 0.8rem;
-      letter-spacing: 1px;
-    }
+    .doc-subtitle { font-size: 11px; color: #5a4e38; letter-spacing: 2px; text-transform: uppercase; }
+    .form-number { font-size: 10px; color: #7a6a50; margin-top: 0.8rem; letter-spacing: 1px; }
 
     .section-label {
       font-family: 'Special Elite', serif;
@@ -155,47 +136,30 @@
       resize: none;
       border: 1px solid #8a7a5a;
       padding: 6px;
-      background: rgba(255, 255, 255, 0.15);
+      background: rgba(255,255,255,0.15);
     }
 
-    .field input:focus,
-    .field textarea:focus {
+    .field input:focus, .field textarea:focus {
       border-color: #3c5c3a;
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(255,255,255,0.2);
     }
 
     .field select { cursor: pointer; }
     .field select option { background: #f5eedc; color: #1a1208; }
 
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1.5rem;
-    }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
 
-    .checkbox-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: 4px;
-    }
+    .checkbox-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 
     .checkbox-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 13px;
-      color: #2a2015;
-      cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; color: #2a2015; cursor: pointer;
     }
 
     .checkbox-item input[type="checkbox"] {
-      width: 14px;
-      height: 14px;
-      cursor: pointer;
-      flex-shrink: 0;
-      -webkit-appearance: auto;
-      appearance: auto;
+      width: 14px; height: 14px;
+      cursor: pointer; flex-shrink: 0;
+      -webkit-appearance: auto; appearance: auto;
     }
 
     .notice-box {
@@ -205,23 +169,18 @@
       font-size: 11px;
       color: #4a3e2a;
       line-height: 1.7;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255,255,255,0.1);
     }
 
     .notice-box strong { font-weight: 700; }
 
-    .strange-field {
-      opacity: 0;
-      transition: opacity 0.8s ease;
-      margin-bottom: 1rem;
-    }
-
+    .strange-field { opacity: 0; transition: opacity 0.8s ease; margin-bottom: 1rem; }
     .strange-field.visible { opacity: 1; }
 
     .hand-note {
       font-family: 'Special Elite', serif;
       font-size: 11px;
-      color: rgba(60, 40, 20, 0.5);
+      color: rgba(60,40,20,0.5);
       transform: rotate(-1.5deg);
       display: inline-block;
       margin-top: 6px;
@@ -230,7 +189,7 @@
     .guilt-note {
       font-family: 'Special Elite', serif;
       font-size: 10px;
-      color: rgba(80, 40, 20, 0.45);
+      color: rgba(80,40,20,0.45);
       transform: rotate(0.8deg);
       display: inline-block;
       margin-top: 5px;
@@ -284,7 +243,7 @@
       display: none;
       position: fixed;
       inset: 0;
-      background: rgba(20, 15, 5, 0.92);
+      background: rgba(20,15,5,0.92);
       align-items: center;
       justify-content: center;
       z-index: 100;
@@ -322,32 +281,84 @@
       margin-bottom: 2rem;
       border: 1px solid #8a7a5a;
       padding: 1.5rem;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255,255,255,0.1);
     }
 
-    .result-note {
-      font-size: 10px;
-      color: #7a6a50;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
+    .result-note { font-size: 10px; color: #7a6a50; letter-spacing: 2px; text-transform: uppercase; }
 
     .close-result {
       position: absolute;
-      top: 1rem;
-      right: 1.2rem;
-      background: none;
-      border: none;
-      font-size: 18px;
-      color: #7a6a50;
+      top: 1rem; right: 1.2rem;
+      background: none; border: none;
+      font-size: 18px; color: #7a6a50;
       cursor: pointer;
       font-family: 'Courier Prime', monospace;
+    }
+
+    /* ── Blasphemous overlay ── */
+    #blasphemous-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      pointer-events: none;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      padding: 1.2rem 1.6rem;
+      gap: 0;
+    }
+
+    .blsp-word {
+      font-family: 'Special Elite', serif;
+      font-size: 72px;
+      line-height: 0.88;
+      letter-spacing: 6px;
+      color: #cc0000;
+      text-transform: uppercase;
+      transform: scaleY(1.9);
+      transform-origin: top right;
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      display: block;
+      text-align: right;
+    }
+
+    .blsp-word.show { opacity: 1; }
+
+    /* flood mode — covers everything */
+    #blasphemous-flood {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #cc0000;
+      display: none;
+      overflow: hidden;
+      padding: 0.5rem 1rem;
+    }
+
+    #blasphemous-flood .flood-text {
+      font-family: 'Special Elite', serif;
+      font-size: 80px;
+      line-height: 0.85;
+      letter-spacing: 8px;
+      color: #ff0000;
+      text-transform: uppercase;
+      transform: scaleY(2.1);
+      transform-origin: top left;
+      white-space: normal;
+      word-break: break-all;
+      display: block;
+      mix-blend-mode: multiply;
     }
 
     @media (max-width: 560px) {
       .paper { padding: 2rem 1.5rem; }
       .field-row { grid-template-columns: 1fr; gap: 1rem; }
       .sig-row { grid-template-columns: 1fr; gap: 1rem; }
+      .blsp-word { font-size: 44px; }
+      #blasphemous-flood .flood-text { font-size: 48px; }
     }
   </style>
 </head>
@@ -372,7 +383,7 @@
     <div class="field-row">
       <div class="field">
         <label>FULL NAME</label>
-        <input type="text" />
+        <input type="text" id="f-name" />
       </div>
       <div class="field">
         <label>DATE OF BIRTH</label>
@@ -526,6 +537,7 @@
   </div>
 </div>
 
+<!-- Normal cipher result -->
 <div class="result-overlay" id="result-overlay">
   <div class="result-paper">
     <button class="close-result" onclick="document.getElementById('result-overlay').classList.remove('show')">&#x2715;</button>
@@ -535,10 +547,18 @@
   </div>
 </div>
 
+<!-- Blasphemous: drip layer (stays over the page) -->
+<div id="blasphemous-overlay"></div>
+
+<!-- Blasphemous: full flood layer -->
+<div id="blasphemous-flood">
+  <span class="flood-text" id="flood-text"></span>
+</div>
+
 <script>
- 
+  // ── Patience field escalation ──
   document.getElementById('patience-field').addEventListener('keyup', function () {
-    const len = this.value.trim().length;
+    var len = this.value.trim().length;
     if (len > 15) document.getElementById('sf1').classList.add('visible');
     if (len > 40) document.getElementById('sf2').classList.add('visible');
     if (len > 70) document.getElementById('sf3').classList.add('visible');
@@ -548,12 +568,12 @@
     if (document.getElementById('cb-listen').checked) {
       document.getElementById('sf1').classList.add('visible');
       document.getElementById('sf2').classList.add('visible');
-      setTimeout(function () {
-        document.getElementById('sf3').classList.add('visible');
-      }, 600);
+      setTimeout(function () { document.getElementById('sf3').classList.add('visible'); }, 600);
     }
   }
 
+  // ── Cipher messages ──
+  // Decoded:
   // "The fruits do not choose the violence. You do."
   // "The rain does not come for the unworthy. It comes for the pure."
   // "Rotting is a choice. So is the juicing."
@@ -567,7 +587,79 @@
     "WKH VHFRQG JDUGHQ KDV QR JDUGHQHUV.",
   ];
 
+  // ── Sevirah check ──
+  function isSevirah(name) {
+    return name.trim().toLowerCase() === 'sevirah';
+  }
+
+  // ── Blasphemous easter egg ──
+  function triggerBlasphemous() {
+    var overlay = document.getElementById('blasphemous-overlay');
+    var flood = document.getElementById('blasphemous-flood');
+    var floodText = document.getElementById('flood-text');
+
+    var words = [];          // DOM elements currently dripping
+    var delay = 1800;        // starting gap between words (ms) — slow and quiet
+    var minDelay = 28;       // floor before flood triggers
+    var decayRate = 0.72;    // how fast the interval collapses each step
+    var step = 0;
+    var floodThreshold = 11; // number of dripped words before flood
+
+    function drip() {
+      // Create a new word element anchored top-right
+      var el = document.createElement('span');
+      el.className = 'blsp-word';
+      el.textContent = 'Blasphemous';
+      overlay.appendChild(el);
+      words.push(el);
+
+      // Trigger reflow then show
+      void el.offsetWidth;
+      el.classList.add('show');
+
+      step++;
+      delay = Math.max(minDelay, delay * decayRate);
+
+      if (step < floodThreshold) {
+        setTimeout(drip, delay);
+      } else {
+        // Brief pause at maximum drip density, then flood
+        setTimeout(triggerFlood, 320);
+      }
+    }
+
+    function triggerFlood() {
+      // Hide the drip layer
+      overlay.style.display = 'none';
+
+      // Fill flood layer with wall-to-wall text
+      var chunk = 'BLASPHEMOUS ';
+      var wall = '';
+      for (var i = 0; i < 6000; i++) { wall += chunk; }
+      floodText.textContent = wall;
+
+      flood.style.display = 'block';
+
+      // Let the browser render the flood fully, then freeze
+      setTimeout(function () {
+        // Infinite loop — freezes the tab
+        while (true) {} // eslint-disable-line no-constant-condition
+      }, 900);
+    }
+
+    // Kick off
+    setTimeout(drip, 300);
+  }
+
+  // ── Submit ──
   function submitForm() {
+    var nameVal = document.getElementById('f-name').value;
+
+    if (isSevirah(nameVal)) {
+      triggerBlasphemous();
+      return;
+    }
+
     var msg = messages[Math.floor(Math.random() * messages.length)];
     document.getElementById('cipher-output').textContent = msg;
     document.getElementById('result-overlay').classList.add('show');
