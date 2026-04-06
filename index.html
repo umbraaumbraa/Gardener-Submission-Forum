@@ -28,12 +28,60 @@
       background-size: 128px 128px;
     }
 
+    /* ── Symbol carved behind the paper ── */
+    #behind-symbol {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      cursor: pointer;
+      user-select: none;
+      width: 220px;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #behind-symbol svg {
+      width: 220px;
+      height: 220px;
+      overflow: visible;
+      display: block;
+    }
+
+    /* Default: dark carved look — deep shadow, like cut into the surface */
+    #behind-symbol .carve {
+      fill: none;
+      stroke: #1a1208;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 3;
+      filter: drop-shadow(0px 2px 2px rgba(255,255,255,0.18)) drop-shadow(0px -1px 1px rgba(0,0,0,0.7));
+      transition: stroke 0.7s ease, filter 0.7s ease;
+    }
+
+    /* Glowing state */
+    #behind-symbol.glowing .carve {
+      stroke: #ffffff;
+      filter:
+        drop-shadow(0 0 4px #ffffff)
+        drop-shadow(0 0 12px #a8d4ff)
+        drop-shadow(0 0 28px #6ab0ff)
+        drop-shadow(0 0 55px #3a8fff);
+    }
+
+    /* ── Page layout ── */
     .page-wrap {
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 2rem 1rem 5rem;
       min-height: 100vh;
+      position: relative;
+      z-index: 1;
+      pointer-events: none;
     }
 
     .paper {
@@ -51,6 +99,8 @@
         rgba(0,0,0,0.04) 28px
       );
       box-shadow: 4px 4px 0 #a0906a, 8px 8px 0 #8a7a5a;
+      z-index: 2;
+      pointer-events: all;
     }
 
     .paper::before {
@@ -146,9 +196,7 @@
 
     .field select { cursor: pointer; }
     .field select option { background: #f5eedc; color: #1a1208; }
-
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
-
     .checkbox-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 
     .checkbox-item {
@@ -173,7 +221,6 @@
     }
 
     .notice-box strong { font-weight: 700; }
-
     .strange-field { opacity: 0; transition: opacity 0.8s ease; margin-bottom: 1rem; }
     .strange-field.visible { opacity: 1; }
 
@@ -295,7 +342,7 @@
       font-family: 'Courier Prime', monospace;
     }
 
-    /* ── Blasphemous overlay ── */
+    /* ── Blasphemous ── */
     #blasphemous-overlay {
       position: fixed;
       inset: 0;
@@ -306,7 +353,6 @@
       flex-direction: column;
       align-items: flex-end;
       padding: 1.2rem 1.6rem;
-      gap: 0;
     }
 
     .blsp-word {
@@ -327,7 +373,6 @@
 
     .blsp-word.show { opacity: 1; }
 
-    /* flood mode — covers everything */
     #blasphemous-flood {
       position: fixed;
       inset: 0;
@@ -359,203 +404,264 @@
       .sig-row { grid-template-columns: 1fr; gap: 1rem; }
       .blsp-word { font-size: 44px; }
       #blasphemous-flood .flood-text { font-size: 48px; }
+      #behind-symbol { width: 150px; height: 150px; }
+      #behind-symbol svg { width: 150px; height: 150px; }
     }
   </style>
 </head>
 <body>
 
-<div class="page-wrap">
-  <div class="paper">
-    <div class="stamp">OFFICIAL<br>DOCUMENT<br>GOH-FORM-7</div>
+  <!-- Symbol carved into the wall behind the paper -->
+  <div id="behind-symbol" onclick="toggleGlow()">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <!-- Outer rays (cardinal) -->
+      <g class="carve">
+        <line x1="50" y1="2"  x2="50" y2="12"/>
+        <line x1="50" y1="88" x2="50" y2="98"/>
+        <line x1="2"  y1="50" x2="12" y2="50"/>
+        <line x1="88" y1="50" x2="98" y2="50"/>
+        <!-- Diagonal rays -->
+        <line x1="16" y1="16" x2="23" y2="23"/>
+        <line x1="77" y1="77" x2="84" y2="84"/>
+        <line x1="84" y1="16" x2="77" y2="23"/>
+        <line x1="23" y1="77" x2="16" y2="84"/>
+        <!-- Secondary rays -->
+        <line x1="30" y1="4"  x2="33" y2="13"/>
+        <line x1="70" y1="4"  x2="67" y2="13"/>
+        <line x1="30" y1="96" x2="33" y2="87"/>
+        <line x1="70" y1="96" x2="67" y2="87"/>
+        <line x1="4"  y1="30" x2="13" y2="33"/>
+        <line x1="4"  y1="70" x2="13" y2="67"/>
+        <line x1="96" y1="30" x2="87" y2="33"/>
+        <line x1="96" y1="70" x2="87" y2="67"/>
+        <!-- Three rings -->
+        <circle cx="50" cy="50" r="40"/>
+        <circle cx="50" cy="50" r="27"/>
+        <circle cx="50" cy="50" r="14"/>
+      </g>
+    </svg>
+  </div>
 
-    <div class="doc-header">
-      <div class="doc-title">The Garden of Honor</div>
-      <div class="doc-subtitle">Gardener Application &amp; Enrollment Form</div>
-      <div class="form-number">Form GOH-7 &nbsp;&nbsp;|&nbsp;&nbsp; Please complete all fields in full &nbsp;&nbsp;|&nbsp;&nbsp; Do not leave blank</div>
-    </div>
+  <div class="page-wrap">
+    <div class="paper">
+      <div class="stamp">OFFICIAL<br>DOCUMENT<br>GOH-FORM-7</div>
 
-    <div class="notice-box">
-      <strong>IMPORTANT NOTICE:</strong> By submitting this form, the applicant acknowledges full understanding of the duties, expectations, and <em>responsibilities</em> of a certified Gardener. The Garden of Honor accepts no liability for outcomes arising during the cultivation process. Purity is the objective. The method is the Gardener's burden to bear.
-    </div>
-
-    <div class="section-label">Section I — Personal Information</div>
-
-    <div class="field-row">
-      <div class="field">
-        <label>FULL NAME</label>
-        <input type="text" id="f-name" />
+      <div class="doc-header">
+        <div class="doc-title">The Garden of Honor</div>
+        <div class="doc-subtitle">Gardener Application &amp; Enrollment Form</div>
+        <div class="form-number">Form GOH-7 &nbsp;&nbsp;|&nbsp;&nbsp; Please complete all fields in full &nbsp;&nbsp;|&nbsp;&nbsp; Do not leave blank</div>
       </div>
-      <div class="field">
-        <label>DATE OF BIRTH</label>
-        <input type="text" placeholder="DD / MM / YYYY" />
+
+      <div class="notice-box">
+        <strong>IMPORTANT NOTICE:</strong> By submitting this form, the applicant acknowledges full understanding of the duties, expectations, and <em>responsibilities</em> of a certified Gardener. The Garden of Honor accepts no liability for outcomes arising during the cultivation process. Purity is the objective. The method is the Gardener's burden to bear.
       </div>
-    </div>
 
-    <div class="field">
-      <label>CURRENT PLACE OF RESIDENCE</label>
-      <input type="text" />
-    </div>
+      <div class="section-label">Section I — Personal Information</div>
 
-    <div class="field-row">
+      <div class="field-row">
+        <div class="field">
+          <label>FULL NAME</label>
+          <input type="text" id="f-name" />
+        </div>
+        <div class="field">
+          <label>DATE OF BIRTH</label>
+          <input type="text" placeholder="DD / MM / YYYY" />
+        </div>
+      </div>
+
       <div class="field">
-        <label>OCCUPATION (PRIOR TO APPLICATION)</label>
+        <label>CURRENT PLACE OF RESIDENCE</label>
         <input type="text" />
       </div>
-      <div class="field">
-        <label>YEARS OF OUTDOOR EXPERIENCE</label>
-        <input type="text" />
+
+      <div class="field-row">
+        <div class="field">
+          <label>OCCUPATION (PRIOR TO APPLICATION)</label>
+          <input type="text" />
+        </div>
+        <div class="field">
+          <label>YEARS OF OUTDOOR EXPERIENCE</label>
+          <input type="text" />
+        </div>
       </div>
-    </div>
 
-    <div class="section-label">Section II — Horticultural Background</div>
+      <div class="section-label">Section II — Horticultural Background</div>
 
-    <div class="field">
-      <label>WHAT HAVE YOU SUCCESSFULLY GROWN IN THE PAST?</label>
-      <textarea rows="2"></textarea>
-    </div>
-
-    <div class="field">
-      <label>PREFERRED METHOD OF CARE</label>
-      <select>
-        <option value="">— Select One —</option>
-        <option>Attentive daily tending</option>
-        <option>Structured weekly schedules</option>
-        <option>Minimal intervention / natural growth</option>
-        <option>I prefer to observe from a distance</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>DO YOU HAVE EXPERIENCE WITH ANY OF THE FOLLOWING?</label>
-      <div class="checkbox-group">
-        <label class="checkbox-item"><input type="checkbox" /> Soil conditioning and preparation</label>
-        <label class="checkbox-item"><input type="checkbox" /> Pruning and controlled growth</label>
-        <label class="checkbox-item"><input type="checkbox" /> Grafting and cross-cultivation</label>
-        <label class="checkbox-item"><input type="checkbox" id="cb-listen" onchange="revealStrange()" /> Communicating with plants</label>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>IN YOUR EXPERIENCE, WHEN SOMETHING IN YOUR CARE HAS SUFFERED — WHO DID YOU HOLD RESPONSIBLE?</label>
-      <select>
-        <option value="">— Select One —</option>
-        <option>Myself. I should have done more.</option>
-        <option>Circumstance. Some things cannot be prevented.</option>
-        <option>The thing itself. It did not try hard enough.</option>
-        <option>I do not assign responsibility. I simply continue.</option>
-      </select>
-      <div class="guilt-note">* responses are weighted and retained indefinitely</div>
-    </div>
-
-    <div class="section-label">Section III — Suitability Assessment</div>
-
-    <div class="field">
-      <label>HOW DO YOU FEEL ABOUT PROLONGED SILENCE?</label>
-      <select>
-        <option value="">— Select One —</option>
-        <option>Comfortable. I enjoy quiet.</option>
-        <option>Manageable with purpose.</option>
-        <option>Unsettling, but I can adapt.</option>
-        <option>I have never experienced it.</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>THE GARDEN REQUIRES DIFFICULT DECISIONS IN THE INTEREST OF PURITY. ARE YOU PREPARED TO ACT WITHOUT HESITATION?</label>
-      <select>
-        <option value="">— Select One —</option>
-        <option>Yes. Hesitation helps no one.</option>
-        <option>I believe so, given clear instruction.</option>
-        <option>I may need time. But I will act.</option>
-        <option>I do not yet understand what will be asked of me.</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label>DESCRIBE YOUR RELATIONSHIP WITH PATIENCE</label>
-      <textarea id="patience-field" rows="2"></textarea>
-    </div>
-
-    <div class="strange-field" id="sf1">
       <div class="field">
-        <label>SOME THINGS MUST BE ENCOURAGED TOWARD PURITY THROUGH MEANS THAT APPEAR, ON THE SURFACE, UNKIND. HOW DO YOU RECONCILE THIS?</label>
+        <label>WHAT HAVE YOU SUCCESSFULLY GROWN IN THE PAST?</label>
+        <textarea rows="2"></textarea>
+      </div>
+
+      <div class="field">
+        <label>PREFERRED METHOD OF CARE</label>
         <select>
           <option value="">— Select One —</option>
-          <option>The outcome justifies the process.</option>
-          <option>I trust the Garden knows what is necessary.</option>
-          <option>I do not reconcile it. I do what is required.</option>
-          <option>I have not thought about it that way before.</option>
+          <option>Attentive daily tending</option>
+          <option>Structured weekly schedules</option>
+          <option>Minimal intervention / natural growth</option>
+          <option>I prefer to observe from a distance</option>
         </select>
       </div>
-    </div>
 
-    <div class="strange-field" id="sf2">
       <div class="field">
-        <label>WHAT IS YOUR UNDERSTANDING OF THE RAIN?</label>
-        <select>
-          <option value="">— Select One —</option>
-          <option>A reward. For those who deserve it.</option>
-          <option>An inevitability. It comes regardless.</option>
-          <option>A destination. Not all will reach it.</option>
-          <option>I understand only that it is not for me.</option>
-        </select>
-        <div class="hand-note">* only the pure are taken. this is known.</div>
-      </div>
-    </div>
-
-    <div class="strange-field" id="sf3">
-      <div class="field">
-        <label>WHICH BEST DESCRIBES YOU?</label>
+        <label>DO YOU HAVE EXPERIENCE WITH ANY OF THE FOLLOWING?</label>
         <div class="checkbox-group">
-          <label class="checkbox-item"><input type="checkbox" /> I understand that rot is a failure of will, not circumstance.</label>
-          <label class="checkbox-item"><input type="checkbox" /> I am comfortable being the last to know the full purpose of my role.</label>
-          <label class="checkbox-item"><input type="checkbox" /> I accept that some things must be processed before they can be at peace.</label>
+          <label class="checkbox-item"><input type="checkbox" /> Soil conditioning and preparation</label>
+          <label class="checkbox-item"><input type="checkbox" /> Pruning and controlled growth</label>
+          <label class="checkbox-item"><input type="checkbox" /> Grafting and cross-cultivation</label>
+          <label class="checkbox-item"><input type="checkbox" id="cb-listen" onchange="revealStrange()" /> Communicating with plants</label>
         </div>
       </div>
-    </div>
 
-    <div class="section-label" style="margin-top:2rem;">Section IV — Declaration</div>
+      <div class="field">
+        <label>IN YOUR EXPERIENCE, WHEN SOMETHING IN YOUR CARE HAS SUFFERED — WHO DID YOU HOLD RESPONSIBLE?</label>
+        <select>
+          <option value="">— Select One —</option>
+          <option>Myself. I should have done more.</option>
+          <option>Circumstance. Some things cannot be prevented.</option>
+          <option>The thing itself. It did not try hard enough.</option>
+          <option>I do not assign responsibility. I simply continue.</option>
+        </select>
+        <div class="guilt-note">* responses are weighted and retained indefinitely</div>
+      </div>
 
-    <div class="notice-box" style="font-size:10px; line-height:1.8;">
-      The undersigned affirms that all information provided is accurate and complete, and that they enter the Garden of Honor willingly. I understand that my role is to ensure purity — not to question what purity costs. The Garden keeps its own records. What happens within the Garden remains within the Garden's jurisdiction.
-    </div>
+      <div class="section-label">Section III — Suitability Assessment</div>
 
-    <div class="submit-area">
-      <div class="sig-row">
-        <div>
-          <div class="sig-line"></div>
-          <div style="font-size:10px;color:#7a6a50;margin-top:4px;letter-spacing:1px;">SIGNATURE OF APPLICANT</div>
-        </div>
-        <div>
-          <div class="sig-line"></div>
-          <div style="font-size:10px;color:#7a6a50;margin-top:4px;letter-spacing:1px;">DATE</div>
+      <div class="field">
+        <label>HOW DO YOU FEEL ABOUT PROLONGED SILENCE?</label>
+        <select>
+          <option value="">— Select One —</option>
+          <option>Comfortable. I enjoy quiet.</option>
+          <option>Manageable with purpose.</option>
+          <option>Unsettling, but I can adapt.</option>
+          <option>I have never experienced it.</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>THE GARDEN REQUIRES DIFFICULT DECISIONS IN THE INTEREST OF PURITY. ARE YOU PREPARED TO ACT WITHOUT HESITATION?</label>
+        <select>
+          <option value="">— Select One —</option>
+          <option>Yes. Hesitation helps no one.</option>
+          <option>I believe so, given clear instruction.</option>
+          <option>I may need time. But I will act.</option>
+          <option>I do not yet understand what will be asked of me.</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>DESCRIBE YOUR RELATIONSHIP WITH PATIENCE</label>
+        <textarea id="patience-field" rows="2"></textarea>
+      </div>
+
+      <div class="strange-field" id="sf1">
+        <div class="field">
+          <label>SOME THINGS MUST BE ENCOURAGED TOWARD PURITY THROUGH MEANS THAT APPEAR, ON THE SURFACE, UNKIND. HOW DO YOU RECONCILE THIS?</label>
+          <select>
+            <option value="">— Select One —</option>
+            <option>The outcome justifies the process.</option>
+            <option>I trust the Garden knows what is necessary.</option>
+            <option>I do not reconcile it. I do what is required.</option>
+            <option>I have not thought about it that way before.</option>
+          </select>
         </div>
       </div>
-      <button class="submit-btn" onclick="submitForm()">Submit Application</button>
-      <div style="font-size:10px;color:#7a6a50;letter-spacing:1px;margin-top:0.5rem;">Processing time: indeterminate</div>
+
+      <div class="strange-field" id="sf2">
+        <div class="field">
+          <label>WHAT IS YOUR UNDERSTANDING OF THE RAIN?</label>
+          <select>
+            <option value="">— Select One —</option>
+            <option>A reward. For those who deserve it.</option>
+            <option>An inevitability. It comes regardless.</option>
+            <option>A destination. Not all will reach it.</option>
+            <option>I understand only that it is not for me.</option>
+          </select>
+          <div class="hand-note">* only the pure are taken. this is known.</div>
+        </div>
+      </div>
+
+      <div class="strange-field" id="sf3">
+        <div class="field">
+          <label>WHICH BEST DESCRIBES YOU?</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" /> I understand that rot is a failure of will, not circumstance.</label>
+            <label class="checkbox-item"><input type="checkbox" /> I am comfortable being the last to know the full purpose of my role.</label>
+            <label class="checkbox-item"><input type="checkbox" /> I accept that some things must be processed before they can be at peace.</label>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:2rem;">Section IV — Declaration</div>
+
+      <div class="notice-box" style="font-size:10px; line-height:1.8;">
+        The undersigned affirms that all information provided is accurate and complete, and that they enter the Garden of Honor willingly. I understand that my role is to ensure purity — not to question what purity costs. The Garden keeps its own records. What happens within the Garden remains within the Garden's jurisdiction.
+      </div>
+
+      <div class="submit-area">
+        <div class="sig-row">
+          <div>
+            <div class="sig-line"></div>
+            <div style="font-size:10px;color:#7a6a50;margin-top:4px;letter-spacing:1px;">SIGNATURE OF APPLICANT</div>
+          </div>
+          <div>
+            <div class="sig-line"></div>
+            <div style="font-size:10px;color:#7a6a50;margin-top:4px;letter-spacing:1px;">DATE</div>
+          </div>
+        </div>
+        <button class="submit-btn" onclick="submitForm()">Submit Application</button>
+        <div style="font-size:10px;color:#7a6a50;letter-spacing:1px;margin-top:0.5rem;">Processing time: indeterminate</div>
+      </div>
     </div>
   </div>
-</div>
 
-<!-- Normal cipher result -->
-<div class="result-overlay" id="result-overlay">
-  <div class="result-paper">
-    <button class="close-result" onclick="document.getElementById('result-overlay').classList.remove('show')">&#x2715;</button>
-    <div class="result-title">Application Received</div>
-    <div class="cipher-text" id="cipher-output"></div>
-    <div class="result-note">retain this message for your records</div>
+  <!-- Normal cipher result -->
+  <div class="result-overlay" id="result-overlay">
+    <div class="result-paper">
+      <button class="close-result" onclick="document.getElementById('result-overlay').classList.remove('show')">&#x2715;</button>
+      <div class="result-title">Application Received</div>
+      <div class="cipher-text" id="cipher-output"></div>
+      <div class="result-note">retain this message for your records</div>
+    </div>
   </div>
-</div>
 
-<!-- Blasphemous: drip layer (stays over the page) -->
-<div id="blasphemous-overlay"></div>
+  <!-- Blasphemous drip layer -->
+  <div id="blasphemous-overlay"></div>
 
-<!-- Blasphemous: full flood layer -->
-<div id="blasphemous-flood">
-  <span class="flood-text" id="flood-text"></span>
-</div>
+  <!-- Blasphemous flood layer -->
+  <div id="blasphemous-flood">
+    <span class="flood-text" id="flood-text"></span>
+  </div>
 
 <script>
+  // ════════════════════════════════════════════════
+  //  NAME → MESSAGE TABLE (Caesar +3)
+  //  Add new entries as: 'name in lowercase': 'CIPHERED MESSAGE',
+  //
+  //  Decoded:
+  //  cantaloupe → "You'll never be a good Grandmother"
+  //  rain       → "Behind the paper"
+  // ════════════════════════════════════════════════
+  var namedMessages = {
+    'cantaloupe': "BRX'OO QHYHU EH D JRRG JUDQGPRWKHU",
+    'rain':       "EHKLQG WKH SDSHU",
+  };
+
+  // ── Default random pool ──
+  // Decoded:
+  // "The fruits do not choose the violence. You do."
+  // "The rain does not come for the unworthy. It comes for the pure."
+  // "Rotting is a choice. So is the juicing."
+  // "You will be thanked for your service. The fruits will not."
+  // "The second garden has no gardeners."
+  var defaultMessages = [
+    "WKH IUXLWV GR QRW FKRRVH WKH YLROHQFH. BRX GR.",
+    "WKH UDLQ GRHV QRW FRPH IRU WKH XQZRUWKB. LW FRPHV IRU WKH SXUH.",
+    "URWWLQJ LV D FKRLFH. VR LV WKH MXLFLQJ.",
+    "BRX ZLOO EH WKDQNHG IRU BRXU VHUYLFH. WKH IUXLWV ZLOO QRW.",
+    "WKH VHFRQG JDUGHQ KDV QR JDUGHQHUV.",
+  ];
+
   // ── Patience field escalation ──
   document.getElementById('patience-field').addEventListener('keyup', function () {
     var len = this.value.trim().length;
@@ -564,6 +670,7 @@
     if (len > 70) document.getElementById('sf3').classList.add('visible');
   });
 
+  // ── Communicating with plants ──
   function revealStrange() {
     if (document.getElementById('cb-listen').checked) {
       document.getElementById('sf1').classList.add('visible');
@@ -572,95 +679,65 @@
     }
   }
 
-  // ── Cipher messages ──
-  // Decoded:
-  // "The fruits do not choose the violence. You do."
-  // "The rain does not come for the unworthy. It comes for the pure."
-  // "Rotting is a choice. So is the juicing."
-  // "You will be thanked for your service. The fruits will not."
-  // "The second garden has no gardeners."
-  var messages = [
-    "WKH IUXLWV GR QRW FKRRVH WKH YLROHQFH. BRX GR.",
-    "WKH UDLQ GRHV QRW FRPH IRU WKH XQZRUWKB. LW FRPHV IRU WKH SXUH.",
-    "URWWLQJ LV D FKRLFH. VR LV WKH MXLFLQJ.",
-    "BRX ZLOO EH WKDQNHG IRU BRXU VHUYLFH. WKH IUXLWV ZLOO QRW.",
-    "WKH VHFRQG JDUGHQ KDV QR JDUGHQHUV.",
-  ];
-
-  // ── Sevirah check ──
-  function isSevirah(name) {
-    return name.trim().toLowerCase() === 'sevirah';
+  // ── Symbol glow toggle ──
+  function toggleGlow() {
+    document.getElementById('behind-symbol').classList.toggle('glowing');
   }
 
   // ── Blasphemous easter egg ──
   function triggerBlasphemous() {
-    var overlay = document.getElementById('blasphemous-overlay');
-    var flood = document.getElementById('blasphemous-flood');
+    var overlay   = document.getElementById('blasphemous-overlay');
+    var flood     = document.getElementById('blasphemous-flood');
     var floodText = document.getElementById('flood-text');
-
-    var words = [];          // DOM elements currently dripping
-    var delay = 1800;        // starting gap between words (ms) — slow and quiet
-    var minDelay = 28;       // floor before flood triggers
-    var decayRate = 0.72;    // how fast the interval collapses each step
-    var step = 0;
-    var floodThreshold = 11; // number of dripped words before flood
+    var delay     = 1800;
+    var minDelay  = 28;
+    var decayRate = 0.72;
+    var step      = 0;
+    var floodAt   = 11;
 
     function drip() {
-      // Create a new word element anchored top-right
       var el = document.createElement('span');
       el.className = 'blsp-word';
       el.textContent = 'Blasphemous';
       overlay.appendChild(el);
-      words.push(el);
-
-      // Trigger reflow then show
       void el.offsetWidth;
       el.classList.add('show');
-
       step++;
       delay = Math.max(minDelay, delay * decayRate);
-
-      if (step < floodThreshold) {
+      if (step < floodAt) {
         setTimeout(drip, delay);
       } else {
-        // Brief pause at maximum drip density, then flood
         setTimeout(triggerFlood, 320);
       }
     }
 
     function triggerFlood() {
-      // Hide the drip layer
       overlay.style.display = 'none';
-
-      // Fill flood layer with wall-to-wall text
-      var chunk = 'BLASPHEMOUS ';
       var wall = '';
-      for (var i = 0; i < 6000; i++) { wall += chunk; }
+      for (var i = 0; i < 6000; i++) { wall += 'BLASPHEMOUS '; }
       floodText.textContent = wall;
-
       flood.style.display = 'block';
-
-      // Let the browser render the flood fully, then freeze
       setTimeout(function () {
-        // Infinite loop — freezes the tab
         while (true) {} // eslint-disable-line no-constant-condition
       }, 900);
     }
 
-    // Kick off
     setTimeout(drip, 300);
   }
 
-  // ── Submit ──
+  // the answer is behind the paper 
   function submitForm() {
-    var nameVal = document.getElementById('f-name').value;
+    var nameVal   = document.getElementById('f-name').value;
+    var nameLower = nameVal.trim().toLowerCase();
 
-    if (isSevirah(nameVal)) {
+    if (nameLower === 'sevirah') {
       triggerBlasphemous();
       return;
     }
 
-    var msg = messages[Math.floor(Math.random() * messages.length)];
+    var msg = namedMessages[nameLower] ||
+              defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
+
     document.getElementById('cipher-output').textContent = msg;
     document.getElementById('result-overlay').classList.add('show');
   }
@@ -668,3 +745,4 @@
 
 </body>
 </html>
+
