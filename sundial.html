@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sundial</title>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: #000;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'IM Fell English', serif;
+  }
+  #sundial-outer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.4rem;
+  }
+  #time-display {
+    font-family: 'Cinzel', serif;
+    font-size: 11px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: #8a6a2a;
+    text-align: center;
+  }
+  #code-reveal {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 8px;
+    color: #3a2800;
+    text-transform: uppercase;
+    text-align: center;
+    transition: color 1.5s ease, opacity 1.5s ease;
+    opacity: 0;
+    min-height: 24px;
+  }
+  #code-reveal.shown { color: #c8a030; opacity: 1; }
+</style>
+</head>
+<body>
+
+<div id="sundial-outer">
+  <div id="time-display">— · —</div>
+
+  <svg id="master" viewBox="0 0 520 520" width="520" height="520" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="goldRing" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#f5e070"/>
+        <stop offset="18%"  stop-color="#c8920a"/>
+        <stop offset="38%"  stop-color="#f0d060"/>
+        <stop offset="55%"  stop-color="#a07010"/>
+        <stop offset="72%"  stop-color="#e8c840"/>
+        <stop offset="88%"  stop-color="#b08020"/>
+        <stop offset="100%" stop-color="#f0d868"/>
+      </linearGradient>
+      <linearGradient id="goldThin" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#e8c840"/>
+        <stop offset="50%"  stop-color="#8a6010"/>
+        <stop offset="100%" stop-color="#d4b030"/>
+      </linearGradient>
+      <linearGradient id="goldAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#f5e880"/>
+        <stop offset="100%" stop-color="#c09020"/>
+      </linearGradient>
+      <radialGradient id="skyGrad" cx="50%" cy="100%" r="100%">
+        <stop id="sky0" offset="0%"   stop-color="#0a0814"/>
+        <stop id="sky1" offset="55%"  stop-color="#060410"/>
+        <stop id="sky2" offset="100%" stop-color="#000000"/>
+      </radialGradient>
+      <radialGradient id="sunGlowGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#fff8c0" stop-opacity="1"/>
+        <stop offset="35%"  stop-color="#f5c030" stop-opacity="0.6"/>
+        <stop offset="100%" stop-color="#f5a000" stop-opacity="0"/>
+      </radialGradient>
+      <radialGradient id="moonGlowGrad" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#d8d8ff" stop-opacity="0.7"/>
+        <stop offset="50%"  stop-color="#8080c0" stop-opacity="0.25"/>
+        <stop offset="100%" stop-color="#4040a0" stop-opacity="0"/>
+      </radialGradient>
+      <clipPath id="dialClip">
+        <circle cx="260" cy="260" r="192"/>
+      </clipPath>
+    </defs>
+
+    <g clip-path="url(#dialClip)">
+
+      <rect x="68" y="68" width="384" height="384" fill="url(#skyGrad)"/>
+
+      <g id="stars" opacity="1">
+        <circle cx="118" cy="148" r="0.9" fill="#fff" opacity="0.55"/>
+        <circle cx="155" cy="120" r="0.7" fill="#fff" opacity="0.45"/>
+        <circle cx="198" cy="140" r="1.0" fill="#fff" opacity="0.5"/>
+        <circle cx="238" cy="105" r="0.6" fill="#fff" opacity="0.35"/>
+        <circle cx="260" cy="132" r="0.8" fill="#fff" opacity="0.4"/>
+        <circle cx="292" cy="112" r="0.9" fill="#fff" opacity="0.5"/>
+        <circle cx="328" cy="148" r="0.7" fill="#fff" opacity="0.4"/>
+        <circle cx="368" cy="128" r="0.8" fill="#fff" opacity="0.45"/>
+        <circle cx="135" cy="190" r="0.6" fill="#fff" opacity="0.3"/>
+        <circle cx="178" cy="182" r="0.7" fill="#fff" opacity="0.35"/>
+        <circle cx="342" cy="178" r="0.6" fill="#fff" opacity="0.3"/>
+        <circle cx="385" cy="192" r="0.7" fill="#fff" opacity="0.3"/>
+        <circle cx="222" cy="168" r="0.6" fill="#fff" opacity="0.25"/>
+        <circle cx="405" cy="158" r="0.6" fill="#fff" opacity="0.3"/>
+        <circle cx="100" cy="222" r="0.5" fill="#fff" opacity="0.25"/>
+        <circle cx="420" cy="232" r="0.5" fill="#fff" opacity="0.25"/>
+        <circle cx="260" cy="158" r="0.5" fill="#fff" opacity="0.2"/>
+      </g>
+
+      <circle id="moonGlow" cx="260" cy="450" r="65" fill="url(#moonGlowGrad)" opacity="0"/>
+      <circle id="moonBody" cx="260" cy="450" r="13" fill="#c8c8e0" opacity="0"/>
+      <g id="moonDetail" opacity="0">
+        <circle id="mc0" cx="254" cy="446" r="3"   fill="none" stroke="#9090b8" stroke-width="0.6" opacity="0.6"/>
+        <circle id="mc1" cx="264" cy="454" r="2"   fill="none" stroke="#9090b8" stroke-width="0.5" opacity="0.45"/>
+        <circle id="mc2" cx="259" cy="451" r="1.3" fill="none" stroke="#9090b8" stroke-width="0.4" opacity="0.35"/>
+      </g>
+
+      <circle id="sunGlow" cx="260" cy="450" r="78" fill="url(#sunGlowGrad)" opacity="0"/>
+      <circle id="sunBody" cx="260" cy="450" r="16" fill="#fffce0" opacity="0"/>
+      <g id="sunRays" opacity="0" stroke="#ffe080" stroke-width="1.1" stroke-linecap="round">
+        <line id="sr0" x1="260" y1="428" x2="260" y2="421"/>
+        <line id="sr1" x1="260" y1="428" x2="260" y2="421"/>
+        <line id="sr2" x1="260" y1="428" x2="260" y2="421"/>
+        <line id="sr3" x1="260" y1="428" x2="260" y2="421"/>
+        <line id="sr4" x1="260" y1="428" x2="260" y2="421"/>
+        <line id="sr5" x1="260" y1="428" x2="260" y2="421"/>
+        <line id="sr6" x1="260" y1="428" x2="260" y2="421"/>
+        <line id="sr7" x1="260" y1="428" x2="260" y2="421"/>
+      </g>
+
+      <line x1="68" y1="452" x2="452" y2="452" stroke="#2a1e08" stroke-width="1.2"/>
+
+      <path d="M78,452 A182,182 0 0,1 442,452" fill="none" stroke="#5a4018" stroke-width="1.5"/>
+      <path d="M74,452 A186,186 0 0,1 446,452" fill="none" stroke="#2a1804" stroke-width="0.5" stroke-dasharray="2,10"/>
+
+      <g stroke="#5a4018" stroke-width="1" stroke-linecap="round">
+        <line x1="85"  y1="452" x2="91"  y2="445"/>
+        <line x1="136" y1="328" x2="140" y2="321"/>
+        <line x1="260" y1="277" x2="260" y2="270"/>
+        <line x1="384" y1="328" x2="380" y2="321"/>
+        <line x1="435" y1="452" x2="429" y2="445"/>
+      </g>
+
+      <g fill="#5a3808" font-family="'Courier Prime', monospace" font-size="9" text-anchor="middle">
+        <text x="85"  y="448" text-anchor="start" font-size="8">6am</text>
+        <text x="136" y="316">9</text>
+        <text x="260" y="264">12</text>
+        <text x="384" y="316">3</text>
+        <text x="435" y="448" text-anchor="end" font-size="8">6pm</text>
+      </g>
+
+      <line id="gnomon" x1="260" y1="452" x2="260" y2="280"
+            stroke="#9a7a2a" stroke-width="1.8" stroke-linecap="round"/>
+
+      <ellipse cx="260" cy="452" rx="26" ry="5" fill="#0d0a00" stroke="#3a2808" stroke-width="0.8"/>
+      <rect x="250" y="450" width="20" height="7" rx="2" fill="#0a0800" stroke="#2a1a04" stroke-width="0.5"/>
+    </g>
+
+    <circle cx="260" cy="260" r="192" fill="none" stroke="#000" stroke-width="16"/>
+
+    <circle cx="260" cy="260" r="196" fill="none" stroke="url(#goldRing)" stroke-width="5"/>
+    <circle cx="260" cy="260" r="192" fill="none" stroke="url(#goldThin)" stroke-width="0.8" opacity="0.55"/>
+    <circle cx="260" cy="260" r="200" fill="none" stroke="url(#goldThin)" stroke-width="0.6" opacity="0.4"/>
+
+    <g fill="url(#goldAccent)" stroke="url(#goldThin)" stroke-width="0.5">
+      <circle cx="178" cy="112" r="3.5"/>
+      <circle cx="342" cy="112" r="3.5"/>
+      <circle cx="145" cy="408" r="3.5"/>
+      <circle cx="375" cy="408" r="3.5"/>
+    </g>
+
+    <g stroke="url(#goldThin)" stroke-width="0.8" opacity="0.4">
+      <line x1="100" y1="100" x2="148" y2="148"/>
+      <line x1="420" y1="100" x2="372" y2="148"/>
+      <line x1="100" y1="420" x2="148" y2="372"/>
+      <line x1="420" y1="420" x2="372" y2="372"/>
+    </g>
+
+    <circle cx="260" cy="260" r="210" fill="none" stroke="url(#goldRing)" stroke-width="2"/>
+
+    <g fill="none" stroke="url(#goldAccent)" stroke-width="0.7" opacity="0.55">
+      <path d="M260,52  C240,66  218,72  208,88"/>
+      <path d="M260,52  C280,66  302,72  312,88"/>
+      <path d="M468,260 C454,240 448,218 432,208"/>
+      <path d="M468,260 C454,280 448,302 432,312"/>
+      <path d="M260,468 C240,454 218,448 208,432"/>
+      <path d="M260,468 C280,454 302,448 312,432"/>
+      <path d="M52,260  C66,240  72,218  88,208"/>
+      <path d="M52,260  C66,280  72,302  88,312"/>
+    </g>
+
+    <circle cx="260" cy="260" r="220" fill="none" stroke="url(#goldThin)" stroke-width="0.6" opacity="0.5"/>
+
+    <circle cx="260" cy="260" r="224" fill="none" stroke="url(#goldRing)" stroke-width="3"/>
+
+    <g fill="url(#goldAccent)" opacity="0.9">
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(0,   260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(30,  260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(60,  260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(90,  260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(120, 260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(150, 260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(180, 260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(210, 260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(240, 260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(270, 260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(300, 260,260)"/>
+      <ellipse cx="260" cy="36" rx="4" ry="6.5" transform="rotate(330, 260,260)"/>
+    </g>
+
+    <g stroke="url(#goldThin)" stroke-width="0.8" stroke-linecap="round" opacity="0.65">
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(10, 260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(20, 260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(40, 260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(50, 260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(70, 260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(80, 260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(100,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(110,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(130,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(140,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(160,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(170,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(190,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(200,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(220,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(230,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(250,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(260,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(280,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(290,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(310,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(320,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(340,260,260)"/>
+      <line x1="260" y1="22" x2="260" y2="34" transform="rotate(350,260,260)"/>
+    </g>
+
+    <g stroke="url(#goldRing)" stroke-width="2.2" stroke-linecap="round">
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(0,   260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(30,  260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(60,  260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(90,  260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(120, 260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(150, 260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(180, 260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(210, 260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(240, 260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(270, 260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(300, 260,260)"/>
+      <line x1="260" y1="20" x2="260" y2="48" transform="rotate(330, 260,260)"/>
+    </g>
+
+    <circle cx="260" cy="260" r="237" fill="none" stroke="url(#goldRing)" stroke-width="8"/>
+    <circle cx="260" cy="260" r="232" fill="none" stroke="url(#goldThin)" stroke-width="1" opacity="0.55"/>
+    <circle cx="260" cy="260" r="244" fill="none" stroke="url(#goldThin)" stroke-width="0.8" opacity="0.4"/>
+
+    <g fill="url(#goldAccent)" stroke="url(#goldThin)" stroke-width="0.5">
+      <g transform="translate(260,54)">
+        <polygon points="0,-10 3.5,-3.5 10,0 3.5,3.5 0,10 -3.5,3.5 -10,0 -3.5,-3.5"/>
+        <circle cx="0" cy="0" r="2.5" fill="url(#goldRing)"/>
+      </g>
+      <g transform="translate(260,466)">
+        <polygon points="0,-10 3.5,-3.5 10,0 3.5,3.5 0,10 -3.5,3.5 -10,0 -3.5,-3.5"/>
+        <circle cx="0" cy="0" r="2.5" fill="url(#goldRing)"/>
+      </g>
+      <g transform="translate(54,260)">
+        <polygon points="0,-10 3.5,-3.5 10,0 3.5,3.5 0,10 -3.5,3.5 -10,0 -3.5,-3.5"/>
+        <circle cx="0" cy="0" r="2.5" fill="url(#goldRing)"/>
+      </g>
+      <g transform="translate(466,260)">
+        <polygon points="0,-10 3.5,-3.5 10,0 3.5,3.5 0,10 -3.5,3.5 -10,0 -3.5,-3.5"/>
+        <circle cx="0" cy="0" r="2.5" fill="url(#goldRing)"/>
+      </g>
+    </g>
+
+    <circle cx="260" cy="260" r="252" fill="none" stroke="url(#goldThin)" stroke-width="0.6" opacity="0.3"/>
+  </svg>
+
+  <div id="code-reveal"></div>
+</div>
+
+<script>
+  var CX = 260, CY = 452, R = 174;
+
+  function deg2rad(d) { return d * Math.PI / 180; }
+
+  function sunAngleDeg(h, m) {
+    var t = Math.max(6, Math.min(18, h + m / 60));
+    return 180 - ((t - 6) / 12) * 180;
+  }
+
+  function moonAngleDeg(h, m) {
+    var t = h + m / 60;
+    if (t < 6) t += 24;
+    var clamped = Math.max(18, Math.min(30, t));
+    var frac = (clamped - 18) / 12;
+    return -(frac * 180);
+  }
+
+  function polarToXY(angleDeg, r) {
+    var rad = deg2rad(angleDeg);
+    return { x: CX + r * Math.cos(rad), y: CY - r * Math.sin(rad) };
+  }
+
+  function getPalette(h, m) {
+    var t = h + m / 60;
+    if (t < 5)   return { sky0:'#080612', sky1:'#050410', sky2:'#000',    stars:1.0, sunG:0,    sunB:0,   moonG:0.38, moonB:1.0, rays:0,   gnomon:'#2a2a40' };
+    if (t < 7)   return { sky0:'#3a1205', sky1:'#180605', sky2:'#060208', stars:0.3, sunG:0.55, sunB:1.0, moonG:0.18, moonB:0.5, rays:0.5, gnomon:'#7a5a20' };
+    if (t < 10)  return { sky0:'#0c2442', sky1:'#071228', sky2:'#030c16', stars:0.0, sunG:0.82, sunB:1.0, moonG:0,   moonB:0.1, rays:0.8, gnomon:'#a08030' };
+    if (t < 14)  return { sky0:'#08182e', sky1:'#050e1c', sky2:'#02080e', stars:0.0, sunG:0.9,  sunB:1.0, moonG:0,   moonB:0,   rays:0.9, gnomon:'#c0a040' };
+    if (t < 17)  return { sky0:'#101c2c', sky1:'#080e18', sky2:'#020810', stars:0.0, sunG:0.76, sunB:1.0, moonG:0,   moonB:0,   rays:0.7, gnomon:'#9a7a28' };
+    if (t < 19)  return { sky0:'#260e04', sky1:'#100404', sky2:'#060206', stars:0.2, sunG:0.5,  sunB:1.0, moonG:0.12,moonB:0.4, rays:0.3, gnomon:'#6a4018' };
+    if (t < 21)  return { sky0:'#0a0514', sky1:'#06030e', sky2:'#000',    stars:0.7, sunG:0,    sunB:0,   moonG:0.3, moonB:1.0, rays:0,   gnomon:'#2a2a40' };
+    return               { sky0:'#080612', sky1:'#050410', sky2:'#000',    stars:1.0, sunG:0,    sunB:0,   moonG:0.38,moonB:1.0, rays:0,   gnomon:'#2a2a40' };
+  }
+
+  function getSunColor(h) {
+    if (h < 7)  return '#ffe090';
+    if (h < 10) return '#fffce0';
+    if (h < 14) return '#ffffff';
+    if (h < 17) return '#ffee80';
+    return '#ff8030';
+  }
+
+  function fmt2(n) { return n < 10 ? '0' + n : '' + n; }
+
+  function update() {
+    var now = new Date();
+    var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+
+    var ampm = h >= 12 ? 'pm' : 'am';
+    var h12 = h % 12 || 12;
+    document.getElementById('time-display').textContent =
+      h12 + ':' + fmt2(m) + ':' + fmt2(s) + ' ' + ampm;
+
+    var pal = getPalette(h, m);
+
+    document.getElementById('sky0').setAttribute('stop-color', pal.sky0);
+    document.getElementById('sky1').setAttribute('stop-color', pal.sky1);
+    document.getElementById('sky2').setAttribute('stop-color', pal.sky2);
+    document.getElementById('stars').setAttribute('opacity', pal.stars);
+
+    var sPos = polarToXY(sunAngleDeg(h, m), R);
+    var sg = document.getElementById('sunGlow');
+    sg.setAttribute('cx', sPos.x.toFixed(1)); sg.setAttribute('cy', sPos.y.toFixed(1));
+    sg.setAttribute('r', '76'); sg.setAttribute('opacity', pal.sunG);
+
+    var sb = document.getElementById('sunBody');
+    sb.setAttribute('cx', sPos.x.toFixed(1)); sb.setAttribute('cy', sPos.y.toFixed(1));
+    sb.setAttribute('fill', getSunColor(h)); sb.setAttribute('opacity', pal.sunB);
+
+    var raysEl = document.getElementById('sunRays');
+    raysEl.setAttribute('opacity', pal.rays);
+    var rayAngles = [0,45,90,135,180,225,270,315];
+    for (var i = 0; i < 8; i++) {
+      var ra  = deg2rad(rayAngles[i]);
+      var el  = document.getElementById('sr' + i);
+      el.setAttribute('x1', (sPos.x + 20 * Math.cos(ra)).toFixed(1));
+      el.setAttribute('y1', (sPos.y - 20 * Math.sin(ra)).toFixed(1));
+      el.setAttribute('x2', (sPos.x + 27 * Math.cos(ra)).toFixed(1));
+      el.setAttribute('y2', (sPos.y - 27 * Math.sin(ra)).toFixed(1));
+    }
+
+    var mPos = polarToXY(moonAngleDeg(h, m), R);
+    var mg = document.getElementById('moonGlow');
+    mg.setAttribute('cx', mPos.x.toFixed(1)); mg.setAttribute('cy', mPos.y.toFixed(1));
+    mg.setAttribute('r', '62'); mg.setAttribute('opacity', pal.moonG);
+
+    var mb = document.getElementById('moonBody');
+    mb.setAttribute('cx', mPos.x.toFixed(1)); mb.setAttribute('cy', mPos.y.toFixed(1));
+    mb.setAttribute('opacity', pal.moonB);
+
+    var offsets = [[-5,-4],[4,5],[-2,3]];
+    for (var j = 0; j < 3; j++) {
+      var mc = document.getElementById('mc' + j);
+      mc.setAttribute('cx', (mPos.x + offsets[j][0]).toFixed(1));
+      mc.setAttribute('cy', (mPos.y + offsets[j][1]).toFixed(1));
+    }
+    document.getElementById('moonDetail').setAttribute('opacity',
+      pal.moonB > 0.3 ? (pal.moonB * 0.8).toFixed(2) : '0');
+
+    var oppAngle = (sunAngleDeg(h, m) + 180) % 360;
+    var gEnd = polarToXY(oppAngle, 50);
+    var gEl = document.getElementById('gnomon');
+    gEl.setAttribute('x2', (CX + (gEnd.x - CX) * 0.55).toFixed(1));
+    gEl.setAttribute('y2', Math.min(CY, CY + (gEnd.y - CY) * 0.55).toFixed(1));
+    gEl.setAttribute('stroke', pal.gnomon);
+
+    var cr = document.getElementById('code-reveal');
+    if (h >= 6 && h < 12) { cr.textContent = 'ROTTEN'; cr.classList.add('shown'); }
+    else                   { cr.textContent = '';       cr.classList.remove('shown'); }
+  }
+
+  update();
+  setInterval(update, 1000);
+</script>
+</body>
+</html>

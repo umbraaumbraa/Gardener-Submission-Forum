@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TRUTH — The Codex of the Well</title>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #050a09;
+      min-height: 100vh;
+      font-family: 'IM Fell English', serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      cursor: default;
+    }
+
+    /* Ambient vignette */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 70% at 50% 50%, transparent 30%, rgba(0,0,0,0.75) 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Page title */
+    #page-title {
+      position: fixed;
+      top: 2.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 7px;
+      color: #1a3830;
+      text-transform: uppercase;
+      z-index: 10;
+      white-space: nowrap;
+    }
+
+    /* Back link */
+    #back-link {
+      position: fixed;
+      top: 2rem; left: 2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 4px;
+      color: #122420;
+      text-decoration: none;
+      text-transform: uppercase;
+      z-index: 10;
+      transition: color 0.4s;
+    }
+    #back-link:hover { color: #2a6858; }
+
+    /* ── BOOK CLOSED STATE ── */
+    #book-closed {
+      position: relative;
+      z-index: 5;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.6rem;
+      transition: opacity 0.6s ease;
+    }
+    #book-closed.hidden { opacity: 0; pointer-events: none; }
+
+    #book-svg-wrap {
+      transition: transform 0.35s ease, filter 0.35s ease;
+      filter: drop-shadow(0 8px 40px rgba(0,80,60,0.18));
+    }
+    #book-closed:hover #book-svg-wrap {
+      transform: translateY(-6px) scale(1.025);
+      filter: drop-shadow(0 16px 50px rgba(0,120,90,0.32));
+    }
+
+    #book-label {
+      font-family: 'Cinzel', serif;
+      font-size: 10px;
+      letter-spacing: 5px;
+      color: #1e4840;
+      text-transform: uppercase;
+      text-align: center;
+      transition: color 0.3s;
+    }
+    #book-closed:hover #book-label { color: #3a7060; }
+
+    /* ── OPEN BOOK STATE ── */
+    #book-open {
+      position: relative;
+      z-index: 5;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+    }
+    #book-open.visible { display: flex; }
+
+    /* The two-page spread */
+    #spread {
+      position: relative;
+      width: min(900px, 92vw);
+      height: min(580px, 78vh);
+      display: flex;
+    }
+
+    /* Spine shadow in center */
+    #spread::after {
+      content: '';
+      position: absolute;
+      left: 50%; top: 5%;
+      width: 24px; height: 90%;
+      transform: translateX(-50%);
+      background: linear-gradient(to right,
+        rgba(0,0,0,0.45) 0%,
+        rgba(0,0,0,0.1)  30%,
+        rgba(0,0,0,0.0)  50%,
+        rgba(0,0,0,0.1)  70%,
+        rgba(0,0,0,0.45) 100%);
+      pointer-events: none;
+      z-index: 3;
+    }
+
+    .page {
+      flex: 1;
+      background: #e2cfa0;
+      padding: 3.2rem 3rem 3rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Aged paper texture overlays */
+    .page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 120px 80px at 8% 8%,   rgba(80,50,10,0.12) 0%, transparent 100%),
+        radial-gradient(ellipse 90px 60px  at 92% 92%, rgba(60,40,5,0.10)  0%, transparent 100%),
+        radial-gradient(ellipse 60px 40px  at 85% 12%, rgba(70,45,8,0.08)  0%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .page-left {
+      border-radius: 4px 0 0 4px;
+      border-right: 1px solid rgba(80,55,15,0.25);
+      background:
+        radial-gradient(ellipse 100% 100% at 100% 50%, rgba(0,0,0,0.08) 0%, transparent 60%),
+        #e2cfa0;
+    }
+    .page-right {
+      border-radius: 0 4px 4px 0;
+      border-left: 1px solid rgba(80,55,15,0.25);
+      background:
+        radial-gradient(ellipse 100% 100% at 0% 50%, rgba(0,0,0,0.08) 0%, transparent 60%),
+        #e2cfa0;
+    }
+
+    /* Outer book border / cover remnant */
+    #spread-wrap {
+      position: relative;
+      padding: 10px;
+      background: linear-gradient(135deg, #0d3028 0%, #082018 50%, #0a2820 100%);
+      border-radius: 6px;
+      box-shadow:
+        0 0 0 1px #0a2820,
+        0 4px 8px rgba(0,0,0,0.5),
+        0 16px 48px rgba(0,50,35,0.4),
+        inset 0 1px 0 rgba(60,160,120,0.08);
+    }
+
+    /* Cover spine strip */
+    #spread-wrap::before {
+      content: '';
+      position: absolute;
+      left: calc(50% - 8px); top: 10px;
+      width: 16px; height: calc(100% - 20px);
+      background: linear-gradient(to right,
+        #062014 0%, #0a3024 30%, #062014 70%, #041810 100%);
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* Chapter content */
+    .chapter {
+      margin-bottom: 1.8rem;
+    }
+    .chapter:last-child { margin-bottom: 0; }
+
+    .ch-heading {
+      font-family: 'Cinzel', serif;
+      font-size: 9.5px;
+      font-weight: 600;
+      letter-spacing: 2.5px;
+      color: #3a2808;
+      text-transform: uppercase;
+      margin-bottom: 0.55rem;
+      padding-bottom: 0.35rem;
+      border-bottom: 1px solid rgba(80,50,15,0.2);
+    }
+    .ch-sub {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 9px;
+      letter-spacing: 1px;
+      color: #5a3a18;
+      margin-bottom: 0.55rem;
+    }
+
+    .verse {
+      font-size: 9.5px;
+      line-height: 1.72;
+      color: #2a1c08;
+      margin-bottom: 0.22rem;
+      text-align: justify;
+    }
+    .verse-num {
+      font-size: 7.5px;
+      color: #8a6030;
+      margin-right: 3px;
+      font-style: normal;
+      vertical-align: super;
+    }
+
+    /* Ornamental divider between chapters */
+    .ch-divider {
+      text-align: center;
+      font-size: 11px;
+      color: rgba(80,50,15,0.3);
+      margin: 0.9rem 0 1rem;
+      letter-spacing: 6px;
+    }
+
+    /* Page number */
+    .page-num {
+      position: absolute;
+      bottom: 1.1rem;
+      font-family: 'Cinzel', serif;
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: rgba(80,50,15,0.4);
+    }
+    .page-left  .page-num { left:  3rem; }
+    .page-right .page-num { right: 3rem; }
+
+    /* Decorative corner marks */
+    .page::after {
+      content: '';
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 0; height: 0;
+    }
+    .corner-mark {
+      position: absolute;
+      width: 12px; height: 12px;
+      border-color: rgba(80,50,15,0.2);
+      border-style: solid;
+    }
+    .cm-tl { top: 10px; left: 10px;  border-width: 1px 0 0 1px; }
+    .cm-tr { top: 10px; right: 10px; border-width: 1px 1px 0 0; }
+    .cm-bl { bottom: 10px; left: 10px;  border-width: 0 0 1px 1px; }
+    .cm-br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
+
+    /* ── NAV ARROWS ── */
+    .nav-arrow {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 1rem;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    .nav-arrow.visible {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .nav-arrow svg { display: block; }
+    .nav-arrow:hover .arrow-path { stroke: #4a9080; }
+    .arrow-path {
+      stroke: #1e5040;
+      transition: stroke 0.3s;
+    }
+    #arrow-left  { left: 2rem; }
+    #arrow-right { right: 2rem; }
+
+    /* ── FINAL PAGE — scribble reveal ── */
+    #final-scribble-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      position: relative;
+    }
+
+    #scribble-btn {
+      position: relative;
+      cursor: pointer;
+      display: inline-block;
+      width: 180px;
+      height: 60px;
+    }
+
+    #scribble-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%; height: 100%;
+      transition: opacity 1.8s ease;
+    }
+    #scribble-svg.fading { opacity: 0; }
+
+    #hidden-word {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cinzel', serif;
+      font-weight: 600;
+      font-size: 26px;
+      letter-spacing: 10px;
+      color: #1a0e04;
+      text-indent: 10px;
+      opacity: 0;
+      transition: opacity 1.8s ease 0.6s;
+    }
+    #hidden-word.revealed { opacity: 1; }
+
+    /* Page flip transition */
+    #book-open {
+      transition: opacity 0.25s ease;
+    }
+    #book-open.turning {
+      opacity: 0;
+    }
+  </style>
+</head>
+<body>
+
+<div id="page-title">The Garden of Honor</div>
+<a id="back-link" href="secret.html">← return</a>
+
+<!-- ── CLOSED BOOK ── -->
+<div id="book-closed" onclick="openBook()">
+  <div id="book-svg-wrap">
+    <svg viewBox="0 0 220 290" width="220" height="290" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#0e3830"/>
+          <stop offset="40%"  stop-color="#082a20"/>
+          <stop offset="100%" stop-color="#051a12"/>
+        </linearGradient>
+        <linearGradient id="spineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%"   stop-color="#041410"/>
+          <stop offset="50%"  stop-color="#0a2e22"/>
+          <stop offset="100%" stop-color="#041410"/>
+        </linearGradient>
+        <linearGradient id="goldLines" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#4a8070"/>
+          <stop offset="50%"  stop-color="#2a6050"/>
+          <stop offset="100%" stop-color="#3a7060"/>
+        </linearGradient>
+        <radialGradient id="coverSheen" cx="35%" cy="30%" r="60%">
+          <stop offset="0%"   stop-color="rgba(80,180,140,0.06)"/>
+          <stop offset="100%" stop-color="rgba(0,0,0,0)"/>
+        </radialGradient>
+        <filter id="bookShadow">
+          <feDropShadow dx="4" dy="8" stdDeviation="12" flood-color="rgba(0,30,20,0.6)"/>
+        </filter>
+      </defs>
+
+      <!-- Spine -->
+      <rect x="0" y="4" width="22" height="282" rx="3"
+            fill="url(#spineGrad)" filter="url(#bookShadow)"/>
+      <line x1="6"  y1="20" x2="6"  y2="270" stroke="#0e3830" stroke-width="0.6"/>
+      <line x1="16" y1="20" x2="16" y2="270" stroke="#0e3830" stroke-width="0.6"/>
+      <!-- Spine bands -->
+      <g fill="#082a20" stroke="#0a3828" stroke-width="0.4">
+        <rect x="2" y="50"  width="18" height="8" rx="1"/>
+        <rect x="2" y="100" width="18" height="8" rx="1"/>
+        <rect x="2" y="180" width="18" height="8" rx="1"/>
+        <rect x="2" y="230" width="18" height="8" rx="1"/>
+      </g>
+
+      <!-- Cover body -->
+      <rect x="18" y="0" width="200" height="290" rx="2"
+            fill="url(#coverGrad)" filter="url(#bookShadow)"/>
+      <rect x="18" y="0" width="200" height="290" rx="2"
+            fill="url(#coverSheen)"/>
+
+      <!-- Outer border -->
+      <rect x="26" y="10" width="184" height="270" rx="1"
+            fill="none" stroke="#1a5040" stroke-width="1"/>
+      <rect x="30" y="14" width="176" height="262" rx="1"
+            fill="none" stroke="#0e3830" stroke-width="0.5"/>
+
+      <!-- Corner ornaments -->
+      <g fill="#1a5040" stroke="none">
+        <polygon points="26,10 40,10 26,24"/>
+        <polygon points="210,10 210,24 196,10"/>
+        <polygon points="26,280 26,266 40,280"/>
+        <polygon points="210,280 196,280 210,266"/>
+      </g>
+      <g fill="#2a7060" opacity="0.5">
+        <polygon points="28,12 38,12 28,22"/>
+        <polygon points="208,12 208,22 198,12"/>
+        <polygon points="28,278 28,268 38,278"/>
+        <polygon points="208,278 198,278 208,268"/>
+      </g>
+
+      <!-- Center emblem — stylised water drop / well eye -->
+      <g transform="translate(118, 130)">
+        <!-- Outer ring -->
+        <circle cx="0" cy="0" r="44" fill="none" stroke="#1a5040" stroke-width="1.5"/>
+        <circle cx="0" cy="0" r="40" fill="none" stroke="#0e3830" stroke-width="0.6"/>
+        <!-- Ripple rings -->
+        <circle cx="0" cy="0" r="32" fill="none" stroke="#154038" stroke-width="0.8"/>
+        <circle cx="0" cy="0" r="22" fill="none" stroke="#102e28" stroke-width="0.8"/>
+        <circle cx="0" cy="0" r="13" fill="none" stroke="#0e2820" stroke-width="0.8"/>
+        <!-- Drop shape -->
+        <path d="M0,-28 C10,-14 18,0 18,10 C18,20 10,28 0,28 C-10,28 -18,20 -18,10 C-18,0 -10,-14 0,-28 Z"
+              fill="#0e3830" stroke="#2a7060" stroke-width="0.8"/>
+        <!-- Inner gleam -->
+        <ellipse cx="-5" cy="-4" rx="4" ry="7"
+                 fill="rgba(80,180,140,0.1)" transform="rotate(-20)"/>
+        <!-- Cardinal tick marks -->
+        <g stroke="#1a5040" stroke-width="1" stroke-linecap="round">
+          <line x1="0" y1="-44" x2="0" y2="-36"/>
+          <line x1="44" y1="0"  x2="36" y2="0"/>
+          <line x1="0" y1="44"  x2="0" y2="36"/>
+          <line x1="-44" y1="0" x2="-36" y2="0"/>
+        </g>
+        <!-- Minor ticks -->
+        <g stroke="#112e28" stroke-width="0.6" stroke-linecap="round">
+          <line x1="31" y1="-31" x2="26" y2="-26"/>
+          <line x1="31" y1="31"  x2="26" y2="26"/>
+          <line x1="-31" y1="31" x2="-26" y2="26"/>
+          <line x1="-31" y1="-31" x2="-26" y2="-26"/>
+        </g>
+      </g>
+
+      <!-- Title text -->
+      <text x="118" y="224"
+            font-family="'Cinzel', serif" font-size="9" font-weight="600"
+            fill="#2a6050" letter-spacing="3" text-anchor="middle"
+            style="text-transform:uppercase">The Codex</text>
+      <text x="118" y="238"
+            font-family="'Cinzel', serif" font-size="9"
+            fill="#1a4838" letter-spacing="3" text-anchor="middle"
+            style="text-transform:uppercase">of the Well</text>
+
+      <!-- Page edges (right side) -->
+      <g opacity="0.6">
+        <rect x="216" y="4"  width="2" height="282" fill="#c8b880"/>
+        <rect x="214" y="6"  width="1" height="278" fill="#b8a870"/>
+        <rect x="212" y="8"  width="1" height="274" fill="#a89860"/>
+      </g>
+    </svg>
+  </div>
+  <div id="book-label">open the codex</div>
+</div>
+
+<!-- ── OPEN BOOK ── -->
+<div id="book-open">
+  <div id="spread-wrap">
+    <div id="spread">
+      <div class="page page-left" id="page-left">
+        <div class="corner-mark cm-tl"></div>
+        <div class="corner-mark cm-bl"></div>
+        <div id="left-content"></div>
+        <div class="page-num" id="left-num"></div>
+      </div>
+      <div class="page page-right" id="page-right">
+        <div class="corner-mark cm-tr"></div>
+        <div class="corner-mark cm-br"></div>
+        <div id="right-content"></div>
+        <div class="page-num" id="right-num"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Nav arrows -->
+<button class="nav-arrow" id="arrow-left"  onclick="flipPage(-1)" aria-label="Previous page">
+  <svg viewBox="0 0 40 60" width="28" height="44">
+    <polyline points="28,8 10,30 28,52" class="arrow-path"
+              fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+<button class="nav-arrow" id="arrow-right" onclick="flipPage(1)"  aria-label="Next page">
+  <svg viewBox="0 0 40 60" width="28" height="44">
+    <polyline points="12,8 30,30 12,52" class="arrow-path"
+              fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+
+<script>
+// ══════════════════════════════════════════════════
+//  LORE DATA
+// ══════════════════════════════════════════════════
+var chapters = [
+  {
+    part: 'Part I · The Genesis & The Primordial Drought',
+    num: 1,
+    title: 'The Parched Earth',
+    verses: [
+      'In the old days, the land was a barren skull, cracked under the gaze of gods who fed on famine.',
+      'The sky was an iron sheet, yielding neither dew nor shadow, and the soil turned to flint beneath the feet of the desperate.',
+      'Men dug into the bellies of dead rivers, pulling up nothing but hot sand and the teeth of things that had perished before them.',
+      'The old gods sat upon the ridges of the dry mountains, their mouths open to catch the smoke of burning bones, for they grew fat only when the world withered.',
+      'Then did the elders of the village gather at the boundary stones, their tongues swollen with dust, and they wept into the dirt, but the dirt gave nothing back.',
+    ]
+  },
+  {
+    num: 2,
+    title: 'The Calling of the Vessel',
+    verses: [
+      'There lived in that grey country a child who had no house, born during the month of the shifting salt, whose lineage was written only in the wind.',
+      'The village looked upon the child with narrow eyes, for those who have nothing are ever feared by those who are losing everything.',
+      'When the misery of the drought had eaten the last seed-grain, the old gods spoke through the mouth of a frantic seer, saying, The sky is a locked gate, and the key is a blood-gift.',
+      'Give us that which has no weight in your ledgers, said the gods of the ridge, and we shall break the iron above your heads.',
+      'The elders knew the child by name, though they wiped that name from the village bricks before the sun could set, that their consciences might remain as empty as their storehouses.',
+    ]
+  },
+  {
+    num: 3,
+    title: 'The Descent into the Dry Well',
+    verses: [
+      'At the center of that dying place stood the great well, a deep throat lined with rough stone that had not known a bucket for three generations.',
+      'They led the child to the coping stones at midnight, when the stars were like cold needles in the blackness.',
+      'The child went down into the dark alone, climbing by the iron rungs that flaked like rust against the palms.',
+      'And when the child\'s feet touched the silt at the bottom, the old gods mocked the village from high above, fleeing their stone altars because they had traded their ancient dominion for a single mortal soul.',
+      'In that same hour, the first drop fell upon the forehead of the elders, and the well began to fill from beneath, though there was no spring below.',
+    ]
+  },
+  {
+    num: 4,
+    title: 'The First Deluge',
+    verses: [
+      'The water rose out of the pit like an awakening beast, pouring over the stones and filling the ditches until the valleys became lakes.',
+      'The people shouted with joy, washing the grey dust from their garments and drinking until their bellies were tight.',
+      'But the sun did not return on the third day, nor on the seventh, nor in the month that followed.',
+      'The rain became the wall and the roof of the world, a heavy curtain that shut out the horizon, and the people realized the child had not bought them a season, but an eternity.',
+    ]
+  },
+  {
+    part: 'Part II · The Era of the Scribe',
+    num: 5,
+    title: 'The Gift of the Tongue',
+    verses: [
+      'When the generations had learned to build their dwellings upon the high rocks, the Waters chose a servant from among the fishermen, whose name was Sevirah.',
+      'The spirit of the storm came upon him by the shore, and his ears were opened to the cadence of the downpour.',
+      'He heard the sorrow of the well in every heavy drop, and he took up a reed to write the words upon tablets of black slate.',
+      'Sevirah spoke with a voice like the rushing of a weir, telling the people that the Rain was a mirror, meant to show them the rot in their own hearts and the necessity of common mercy.',
+      'And for forty years he wrote the true words, sparing neither king nor beggar, for the water knows no difference between the wool of the rich and the rags of the poor.',
+    ]
+  },
+  {
+    num: 6,
+    title: 'The Hardening of Hearts',
+    verses: [
+      'But the people grew weary of the mirror, for it is a painful thing to stand naked in the downpour and see the smallness of one\'s soul.',
+      'They desired a god who would bless their granaries and curse their enemies, rather than a spirit that demanded they share their bread in the storm.',
+      'They built high roofs over their councils that they might not hear the thunder, and they walked past Sevirah as he sat by the gates, leaving his tablets to gather moss.',
+      'Sevirah saw the silence of the people and was afraid, for he loved the Waters more than his own breath, and he could not endure the thought of a world where the voice of his master was dead.',
+    ]
+  },
+  {
+    num: 7,
+    title: 'The Self-Inflicted Blade',
+    verses: [
+      'In the winter of his year, Sevirah took up his stylus with a trembling hand and went into the dark of his chamber.',
+      'He looked upon the ancient verses, where it was written that the Rain fell to wash away the pride of men, and his heart failed him.',
+      'He said to himself, If I give them the hard truth, they will perish in their indifference, but if I give them a crown, they will bow.',
+      'So he scraped the slate with a sharp flint, changing the commandment of mercy into a demand for sacrifice.',
+      'Where the water had said, Look upon your brother, Sevirah wrote, Judge those who are unclean, and the people returned to the temples with gifts of gold, pleased that their cruelty had been given a divine title.',
+    ]
+  },
+  {
+    num: 8,
+    title: 'The Casting Out of the Scribe',
+    verses: [
+      'Then the sky grew dark with a terrible purple weight, and the voice of the Waters broke through the roof of Sevirah\'s house like a fallen mast.',
+      'Out of all my subjects, said the spirit, you are the one I least expected to betray me.',
+      'Sevirah fell upon his face among his ruined papers, crying out, It was not betrayal, but editing, for the world did not want the truth, and I gave them comfort that they might remain faithful.',
+      'The Waters answered him with a sound like tearing canvas, saying, You have traded the deep current for a shallow puddle, and your name shall be a curse among those who seek the sea.',
+      'And Sevirah was cast out into the trackless mist, stripped of his tongue, leaving behind a book that was half light and half poison.',
+    ]
+  },
+  {
+    part: 'Part III · The Revelations of the Trial',
+    num: 11,
+    title: 'The Architecture of the Trials',
+    verses: [
+      'When the voice of the Waters fell silent after the departure of Sevirah, the sky did not clear, but changed its purpose.',
+      'The clouds came down to rest upon the hills, forming great labyrinthine walls of grey vapor that moved without wind.',
+      'These are the Trials of the Mist, which no man can navigate by the light of a lantern or the direction of a compass.',
+      'Within the heart of the storm, the paths shift according to the intent of the traveler, so that those who enter seeking wealth are led into bogs of salt, and those who seek renown are lost in the roaring gale.',
+      'The temple priests preach that the Trials are a sieve to separate the pure from the wicked, but they lie, for the storm seeks only the weight of the original well.',
+    ]
+  },
+  {
+    num: 12,
+    title: 'The Vision of the Final Well',
+    verses: [
+      'I saw a vision of the end of days, when the great dams of the earth shall break and the rain shall touch the topmost branches of the holy cedar trees.',
+      'In that hour, the false books of Sevirah shall dissolve like flour in the flood, and the altars of driftwood shall float away like chaff.',
+      'A single soul shall come down from the ridges, having no crown, no law, and no claim upon the heavens.',
+      'This traveler shall walk into the eye of the deluge, not to escape the judgment, nor to command the lightning, but to take the hand of the child who still sits at the bottom of the dark.',
+      'Then shall the rain cease its weeping, and the living waters shall find their rest, speaking no more through the mouths of priests, but dwelling in the hearts of those who have learned to flow together.',
+    ]
+  },
+];
+
+// ── SPREADS: 1 chapter per page, 2 pages per spread
+// Ch 0-1, 2-3, 4-5, 6-7, 8-9, then final
+var SPREADS = [
+  { left: 0,    right: 1,    pageNums: ['I',   'II']  },
+  { left: 2,    right: 3,    pageNums: ['III', 'IV']  },
+  { left: 4,    right: 5,    pageNums: ['V',   'VI']  },
+  { left: 6,    right: 7,    pageNums: ['VII', 'VIII'] },
+  { left: 8,    right: 9,    pageNums: ['IX',  'X']   },
+  { left: null, right: null, pageNums: ['XI',  'XII'], final: true },
+];
+
+var currentSpread = 0;
+var scribbleRevealed = false;
+
+// ══════════════════════════════════════════════════
+//  BUILD CHAPTER HTML
+// ══════════════════════════════════════════════════
+function buildChapter(ch, showPart) {
+  var html = '';
+  if (showPart && ch.part) {
+    html += '<div style="font-family:\'Cinzel\',serif;font-size:7px;letter-spacing:3px;color:#8a6030;text-transform:uppercase;margin-bottom:0.7rem;opacity:0.7;">' + ch.part + '</div>';
+  }
+  html += '<div class="chapter">';
+  html += '<div class="ch-heading">Chapter ' + ch.num + '</div>';
+  html += '<div class="ch-sub">' + ch.title + '</div>';
+  ch.verses.forEach(function(v, i) {
+    html += '<p class="verse"><sup class="verse-num">' + (i+1) + '</sup>' + v + '</p>';
+  });
+  html += '</div>';
+  return html;
+}
+
+function buildPageContent(chapterIndex) {
+  if (chapterIndex === null || chapterIndex === undefined) return '';
+  var showPart = (chapterIndex === 0 || chapterIndex === 4 || chapterIndex === 8);
+  return buildChapter(chapters[chapterIndex], showPart);
+}
+
+// ══════════════════════════════════════════════════
+//  FINAL PAGE SCRIBBLE
+// ══════════════════════════════════════════════════
+function buildFinalLeft() {
+  return '<div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.2rem;opacity:0.35;">' +
+    '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:4px;color:#3a2808;text-transform:uppercase;">— Finis —</div>' +
+    '<div style="width:60%;height:1px;background:rgba(80,50,15,0.2);"></div>' +
+    '<div style="font-family:\'IM Fell English\',serif;font-style:italic;font-size:9px;color:#5a3a18;text-align:center;line-height:1.8;">' +
+      'Here ends the Codex of the Well,<br>as recorded in the year of the fifth silence.<br>May the water judge the reader<br>as the reader has judged the water.' +
+    '</div>' +
+  '</div>';
+}
+
+function buildFinalRight() {
+  return '<div id="final-scribble-wrap">' +
+    '<div id="scribble-btn" onclick="revealWord()" title="click to reveal">' +
+      '<svg id="scribble-svg" viewBox="0 0 180 60" xmlns="http://www.w3.org/2000/svg">' +
+        buildScribble() +
+      '</svg>' +
+      '<div id="hidden-word">UMBRA</div>' +
+    '</div>' +
+  '</div>';
+}
+
+function buildScribble() {
+  // Dense overlapping pen strokes that visually obscure text beneath
+  var lines = [
+    'M10,15 Q30,8 50,18 Q70,28 90,12 Q110,2 130,14 Q150,24 170,10',
+    'M8,22  Q25,30 48,20 Q68,12 92,22 Q112,30 135,18 Q158,8 172,20',
+    'M12,30 Q35,22 55,32 Q78,40 100,28 Q122,18 145,30 Q162,38 170,28',
+    'M10,38 Q28,30 52,40 Q74,48 96,36 Q118,26 142,38 Q160,46 172,36',
+    'M8,46  Q30,38 54,48 Q76,56 98,44 Q120,34 144,46 Q164,52 172,44',
+    'M15,12 Q18,28 14,44 Q12,52 16,56',
+    'M30,8  Q28,24 32,40 Q34,50 30,56',
+    'M50,10 Q52,26 48,42 Q46,52 50,58',
+    'M72,8  Q70,24 74,40 Q76,50 72,56',
+    'M92,6  Q94,22 90,38 Q88,50 92,56',
+    'M112,8 Q110,24 114,40 Q116,50 112,56',
+    'M132,6 Q134,22 130,38 Q128,50 132,56',
+    'M152,8 Q150,24 154,40 Q156,50 152,56',
+    'M6,18  Q90,10 174,16',
+    'M6,34  Q90,26 174,32',
+    'M6,50  Q90,42 174,48',
+    'M20,6  Q22,30 20,54',
+    'M60,4  Q62,30 60,56',
+    'M100,4 Q102,30 100,56',
+    'M140,4 Q142,30 140,56',
+  ];
+  var svg = '';
+  lines.forEach(function(d, i) {
+    var opacity = 0.55 + (i % 3) * 0.12;
+    var width   = 1.2 + (i % 4) * 0.35;
+    svg += '<path d="' + d + '" fill="none" stroke="#1a0e04" stroke-width="' + width.toFixed(1) + '" stroke-linecap="round" opacity="' + opacity.toFixed(2) + '"/>';
+  });
+  return svg;
+}
+
+function revealWord() {
+  if (scribbleRevealed) return;
+  scribbleRevealed = true;
+  var scrib = document.getElementById('scribble-svg');
+  var word  = document.getElementById('hidden-word');
+  if (scrib) scrib.classList.add('fading');
+  if (word)  word.classList.add('revealed');
+}
+
+// ══════════════════════════════════════════════════
+//  RENDER SPREAD
+// ══════════════════════════════════════════════════
+function renderSpread(idx) {
+  var sp = SPREADS[idx];
+
+  if (sp.final) {
+    document.getElementById('left-content').innerHTML  = buildFinalLeft();
+    document.getElementById('right-content').innerHTML = buildFinalRight();
+  } else {
+    document.getElementById('left-content').innerHTML  = buildPageContent(sp.left);
+    document.getElementById('right-content').innerHTML = buildPageContent(sp.right);
+  }
+
+  document.getElementById('left-num').textContent  = sp.pageNums[0];
+  document.getElementById('right-num').textContent = sp.pageNums[1];
+
+  // Arrows
+  var al = document.getElementById('arrow-left');
+  var ar = document.getElementById('arrow-right');
+  if (idx > 0) al.classList.add('visible'); else al.classList.remove('visible');
+  if (idx < SPREADS.length-1) ar.classList.add('visible'); else ar.classList.remove('visible');
+}
+
+// ══════════════════════════════════════════════════
+//  FLIP
+// ══════════════════════════════════════════════════
+function flipPage(dir) {
+  var next = currentSpread + dir;
+  if (next < 0 || next >= SPREADS.length) return;
+
+  var openEl = document.getElementById('book-open');
+  openEl.classList.add('turning');
+  setTimeout(function() {
+    currentSpread = next;
+    renderSpread(currentSpread);
+    openEl.classList.remove('turning');
+  }, 250);
+}
+
+// ══════════════════════════════════════════════════
+//  OPEN BOOK
+// ══════════════════════════════════════════════════
+function openBook() {
+  var closed = document.getElementById('book-closed');
+  var open   = document.getElementById('book-open');
+
+  closed.classList.add('hidden');
+  setTimeout(function() {
+    closed.style.display = 'none';
+    open.classList.add('visible');
+    renderSpread(0);
+    setTimeout(function() {
+      document.getElementById('arrow-right').classList.add('visible');
+    }, 400);
+  }, 600);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>The Garden of Honor</title>
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #07050a;
+      min-height: 100vh;
+      overflow: hidden;
+      font-family: 'IM Fell English', serif;
+      cursor: none;
+      user-select: none;
+    }
+    #scene {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Atmospheric background */
+    #bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 60% 40% at 50% 0%,   #1a1408 0%, transparent 70%),
+        radial-gradient(ellipse 80% 50% at 20% 80%,  #0e0a04 0%, transparent 60%),
+        radial-gradient(ellipse 80% 50% at 80% 80%,  #0e0a04 0%, transparent 60%),
+        #07050a;
+      transition: background 8s ease;
+    }
+    #vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 85% 85% at 50% 50%, transparent 35%, rgba(0,0,0,0.85) 100%);
+      pointer-events: none;
+      z-index: 12;
+    }
+
+    /* Ground surface */
+    #ground-svg {
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 100%; height: 42vh;
+      overflow: visible;
+    }
+
+    /* Puddle */
+    #puddle {
+      position: absolute;
+      bottom: 42vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; height: 0;
+      background: radial-gradient(ellipse at 50% 70%,
+        rgba(30,55,80,0.75) 0%,
+        rgba(15,30,45,0.4) 55%,
+        transparent 100%);
+      border-radius: 50%;
+      transition: width 5s ease, height 5s ease, opacity 4s ease;
+      opacity: 0;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    /* Flower SVG canvas — pot bottom is at y=232 in 420px viewBox = 188px from canvas bottom.
+       We position bottom edge of SVG at table surface, then lift by those 188px so pot sits flush. */
+    #main-svg {
+      position: absolute;
+      bottom: calc(42vh - 188px);
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 420px;
+      overflow: visible;
+      z-index: 3;
+    }
+
+    /* Watering can */
+    #can-wrap {
+      position: fixed;
+      z-index: 30;
+      pointer-events: auto;
+      width: 130px;
+      height: 100px;
+      cursor: grab;
+      transform-origin: 55% 40%;
+      transition: transform 0.35s cubic-bezier(0.4,0,0.2,1);
+    }
+    #can-wrap.grabbed { cursor: grabbing; }
+
+    /* Cursor */
+    #cursor-dot {
+      position: fixed;
+      width: 5px; height: 5px;
+      background: rgba(200,160,80,0.35);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 50;
+      transform: translate(-50%,-50%);
+    }
+
+    /* Droplets */
+    .droplet {
+      position: fixed;
+      pointer-events: none;
+      z-index: 25;
+      border-radius: 50% 50% 45% 45%;
+    }
+
+    /* Paper */
+    #paper {
+      position: absolute;
+      bottom: 42vh;
+      left: 50%;
+      transform: translateX(-50%) rotate(-4deg);
+      width: 80px; height: 100px;
+      display: none;
+      cursor: pointer;
+      z-index: 2;
+    }
+
+    /* Overlay */
+    #paper-overlay {
+      position: fixed; inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.78);
+      backdrop-filter: blur(3px);
+      cursor: pointer;
+    }
+    #paper-overlay.show { display: flex; }
+    #paper-doc {
+      background: #e2cc90;
+      width: min(480px, 88vw);
+      padding: 5rem 4.5rem;
+      position: relative;
+      text-align: center;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.9), inset 0 0 50px rgba(80,50,10,0.12);
+      cursor: default;
+    }
+    #paper-doc::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 200px 140px at 3% 3%,   rgba(100,60,10,0.2) 0%, transparent 100%),
+        radial-gradient(ellipse 150px 120px at 97% 97%,  rgba(80,45,8,0.18) 0%, transparent 100%),
+        radial-gradient(ellipse 100px 80px at 85% 8%,    rgba(70,40,5,0.12) 0%, transparent 100%),
+        radial-gradient(ellipse 80px 100px at 5% 90%,    rgba(90,50,8,0.1) 0%, transparent 100%);
+      pointer-events: none;
+    }
+    #paper-doc::after {
+      content: ''; position: absolute; inset: 18px;
+      border: 1px solid rgba(110,70,25,0.2);
+      pointer-events: none;
+    }
+    .paper-word {
+      font-family: 'Cinzel', serif;
+      font-weight: 600;
+      font-size: 44px;
+      letter-spacing: 18px;
+      color: #160c02;
+      display: block;
+      margin-bottom: 3rem;
+      text-indent: 18px;
+    }
+    .paper-hint {
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: #7a5530;
+    }
+
+    /* Stage label */
+    #stage-label {
+      position: fixed;
+      bottom: 2.5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 12px;
+      letter-spacing: 3px;
+      color: rgba(160,100,40,0);
+      transition: color 2.5s ease;
+      z-index: 15;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    #stage-label.show { color: rgba(160,100,40,0.65); }
+    #stage-label.urgent { color: rgba(180,70,20,0.8) !important; }
+
+    /* Back link */
+    #back-link {
+      position: fixed;
+      top: 2rem; left: 2rem;
+      font-family: 'Cinzel', serif;
+      font-size: 9px;
+      letter-spacing: 4px;
+      color: #221808;
+      text-decoration: none;
+      text-transform: uppercase;
+      z-index: 15;
+      transition: color 0.3s;
+    }
+    #back-link:hover { color: #6a4a20; }
+
+    /* Hint */
+    #grab-hint {
+      position: fixed;
+      bottom: 5rem; left: 50%;
+      transform: translateX(-50%);
+      font-family: 'IM Fell English', serif;
+      font-style: italic;
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: rgba(140,100,50,0.45);
+      pointer-events: none;
+      z-index: 15;
+      transition: opacity 1.2s ease;
+      white-space: nowrap;
+    }
+    #grab-hint.hide { opacity: 0; }
+
+    /* Falling note */
+    #falling-note {
+      position: absolute;
+      left: 50%;
+      top: 20vh;
+      transform: translateX(-20px) rotate(-8deg);
+      z-index: 5;
+      display: none;
+      cursor: pointer;
+      pointer-events: none;
+    }
+    #falling-note.drop {
+      display: block;
+      pointer-events: none;
+      animation: noteFall 2s cubic-bezier(0.33, 0.1, 0.45, 1.0) forwards;
+    }
+    #falling-note.landed {
+      display: block;
+      pointer-events: auto;
+      cursor: pointer;
+      position: absolute;
+      top: calc(58vh - 115px);
+      left: 50%;
+      transform: translateX(-20px) rotate(-5deg);
+      z-index: 16;
+    }
+    #falling-note.landed:hover #note-svg {
+      filter: brightness(1.1);
+    }
+    @keyframes noteFall {
+      0%   { top: 20vh;              opacity: 0; transform: translateX(-20px) rotate(-15deg); }
+      12%  { opacity: 1; }
+      55%  { transform: translateX(-20px) rotate(7deg); }
+      78%  { transform: translateX(-20px) rotate(-4deg); }
+      92%  { transform: translateX(-20px) rotate(-6deg); }
+      100% { top: calc(58vh - 115px); opacity: 1; transform: translateX(-20px) rotate(-5deg); }
+    }
+
+
+    .dust {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(180,140,60,0.1);
+      pointer-events: none;
+      animation: floatdust linear infinite;
+    }
+    @keyframes floatdust {
+      0%   { transform: translate(0, 0) scale(1); opacity: 0; }
+      15%  { opacity: 1; }
+      85%  { opacity: 0.3; }
+      100% { transform: translate(var(--dx), -100px) scale(0.5); opacity: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<a id="back-link" href="secret.html">← return</a>
+<div id="grab-hint">hold the watering can to pour</div>
+
+<div id="scene">
+  <div id="bg"></div>
+  <div id="vignette"></div>
+
+  <svg id="ground-svg" viewBox="0 0 1400 320" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="woodGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#2c1c0a"/>
+        <stop offset="6%"   stop-color="#251606"/>
+        <stop offset="100%" stop-color="#0c0804"/>
+      </linearGradient>
+      <linearGradient id="woodEdge" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#503010"/>
+        <stop offset="50%"  stop-color="#3a2008"/>
+        <stop offset="100%" stop-color="#281405"/>
+      </linearGradient>
+    </defs>
+    <rect x="0" y="26" width="1400" height="294" fill="url(#woodGrad)"/>
+    <rect x="0" y="0" width="1400" height="30" fill="url(#woodEdge)"/>
+    <line x1="0" y1="30" x2="1400" y2="30" stroke="#5a3818" stroke-width="0.8" opacity="0.6"/>
+    <line x1="0" y1="31" x2="1400" y2="31" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>
+    <rect x="0" y="0" width="1400" height="3" fill="rgba(255,200,100,0.05)"/>
+    <g stroke="#1a0e04" fill="none" opacity="0.28">
+      <path d="M0,70  Q350,62  700,71  Q1050,79  1400,68"/>
+      <path d="M0,105 Q280,96  600,107 Q920,116  1400,102"/>
+      <path d="M0,138 Q320,129 650,140 Q980,150  1400,135"/>
+      <path d="M0,172 Q310,162 640,174 Q970,184  1400,169"/>
+      <path d="M0,205 Q290,195 580,207 Q900,218  1400,202"/>
+      <path d="M0,240 Q340,229 680,242 Q1020,253 1400,237"/>
+      <path d="M0,272 Q360,261 700,275 Q1040,287 1400,270"/>
+    </g>
+    <g stroke="#100804" fill="none" opacity="0.18" stroke-width="0.5">
+      <path d="M0,50  Q200,45  450,52  Q700,58   1400,47"/>
+      <path d="M0,88  Q250,82  520,90  Q800,97   1400,84"/>
+      <path d="M0,122 Q230,115 490,124 Q760,132  1400,119"/>
+      <path d="M0,190 Q270,182 540,192 Q820,201  1400,187"/>
+      <path d="M0,224 Q300,216 600,226 Q890,235  1400,221"/>
+      <path d="M0,256 Q280,247 560,259 Q870,269  1400,253"/>
+    </g>
+    <ellipse cx="320" cy="160" rx="18" ry="10" fill="none" stroke="#0e0804" stroke-width="1.2" opacity="0.4"/>
+    <ellipse cx="320" cy="160" rx="10" ry="5"  fill="none" stroke="#0e0804" stroke-width="0.7" opacity="0.3"/>
+    <ellipse cx="1080" cy="130" rx="14" ry="8" fill="none" stroke="#0e0804" stroke-width="1" opacity="0.35"/>
+  </svg>
+
+  <div id="puddle"></div>
+
+  <div id="falling-note" style="display:none;">
+    <svg id="note-svg" viewBox="0 0 90 115" width="90" height="115" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="noteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%"   stop-color="#e8d898"/>
+          <stop offset="100%" stop-color="#ceba72"/>
+        </linearGradient>
+      </defs>
+      <rect x="2" y="2" width="82" height="111" rx="2"
+            fill="url(#noteGrad)" stroke="#b8a050" stroke-width="0.8"
+            style="filter:drop-shadow(3px 5px 14px rgba(0,0,0,0.75))"/>
+      <path d="M64 2 L88 24 L64 24 Z" fill="#c0aa62" opacity="0.8"/>
+      <line x1="64" y1="2" x2="88" y2="24" stroke="#a89048" stroke-width="0.6"/>
+      <ellipse cx="58" cy="82" rx="12" ry="8" fill="rgba(80,55,10,0.07)" transform="rotate(-18 58 82)"/>
+      <g stroke="rgba(100,70,15,0.12)" stroke-width="0.6">
+        <line x1="12" y1="38" x2="78" y2="38"/>
+        <line x1="12" y1="52" x2="78" y2="52"/>
+        <line x1="12" y1="66" x2="78" y2="66"/>
+        <line x1="12" y1="80" x2="78" y2="80"/>
+        <line x1="12" y1="94" x2="78" y2="94"/>
+      </g>
+      <g fill="rgba(40,20,2,0.13)">
+        <rect x="12" y="36" width="28" height="2" rx="1"/>
+        <rect x="12" y="50" width="40" height="2" rx="1"/>
+        <rect x="12" y="64" width="22" height="2" rx="1"/>
+      </g>
+      <rect x="8" y="8" width="70" height="99" rx="1"
+            fill="none" stroke="rgba(150,110,30,0.18)" stroke-width="0.5"/>
+    </svg>
+  </div>
+
+  <svg id="main-svg" viewBox="0 0 300 420" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="potMain" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%"   stop-color="#b86030"/>
+        <stop offset="30%"  stop-color="#8a4420"/>
+        <stop offset="65%"  stop-color="#6a3015"/>
+        <stop offset="100%" stop-color="#4e2210"/>
+      </linearGradient>
+      <linearGradient id="potShadow" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%"   stop-color="rgba(0,0,0,0)"/>
+        <stop offset="100%" stop-color="rgba(0,0,0,0.28)"/>
+      </linearGradient>
+      <radialGradient id="potShine" cx="22%" cy="20%" r="55%">
+        <stop offset="0%"   stop-color="rgba(255,210,140,0.18)"/>
+        <stop offset="100%" stop-color="rgba(255,200,120,0)"/>
+      </radialGradient>
+      <linearGradient id="rimGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop offset="0%"   stop-color="#c87040"/>
+        <stop offset="40%"  stop-color="#8a4820"/>
+        <stop offset="100%" stop-color="#5a2e10"/>
+      </linearGradient>
+      <linearGradient id="soilGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+        <stop id="sg-soil0" offset="0%"   stop-color="#2e1c0a"/>
+        <stop id="sg-soil1" offset="100%" stop-color="#1a1006"/>
+      </linearGradient>
+
+      <linearGradient id="stemGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop id="sg0" offset="0%"   stop-color="#204e10"/>
+        <stop id="sg1" offset="42%"  stop-color="#347c1e"/>
+        <stop id="sg2" offset="100%" stop-color="#1c4008"/>
+      </linearGradient>
+
+      <linearGradient id="leafGL" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop id="lg0" offset="0%"   stop-color="#3a8e22"/>
+        <stop id="lg1" offset="100%" stop-color="#1e5210"/>
+      </linearGradient>
+      <linearGradient id="leafGR" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop id="lg2" offset="0%"   stop-color="#3a8e22"/>
+        <stop id="lg3" offset="100%" stop-color="#1e5210"/>
+      </linearGradient>
+      <linearGradient id="leafGSL" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop id="lg4" offset="0%"   stop-color="#368420"/>
+        <stop id="lg5" offset="100%" stop-color="#1c4c0e"/>
+      </linearGradient>
+      <linearGradient id="leafGSR" x1="100%" y1="0%" x2="0%" y2="100%">
+        <stop id="lg6" offset="0%"   stop-color="#368420"/>
+        <stop id="lg7" offset="100%" stop-color="#1c4c0e"/>
+      </linearGradient>
+
+      <radialGradient id="petalA" cx="50%" cy="85%" r="75%">
+        <stop id="pa0" offset="0%"   stop-color="#f8d030"/>
+        <stop id="pa1" offset="55%"  stop-color="#e0a818"/>
+        <stop id="pa2" offset="100%" stop-color="#b87e0c"/>
+      </radialGradient>
+      <radialGradient id="petalB" cx="50%" cy="85%" r="75%">
+        <stop id="pb0" offset="0%"   stop-color="#f0c428"/>
+        <stop id="pb1" offset="55%"  stop-color="#d49a10"/>
+        <stop id="pb2" offset="100%" stop-color="#ac7408"/>
+      </radialGradient>
+      <radialGradient id="petalC" cx="50%" cy="80%" r="70%">
+        <stop id="pc0" offset="0%"   stop-color="#f4c820"/>
+        <stop id="pc1" offset="100%" stop-color="#c08808"/>
+      </radialGradient>
+
+      <radialGradient id="discGrad" cx="40%" cy="35%" r="70%">
+        <stop id="dc0" offset="0%"   stop-color="#8a5020"/>
+        <stop id="dc1" offset="45%"  stop-color="#5e3010"/>
+        <stop id="dc2" offset="100%" stop-color="#381c06"/>
+      </radialGradient>
+      <radialGradient id="discGlow" cx="35%" cy="30%" r="55%">
+        <stop offset="0%"   stop-color="rgba(255,200,80,0.10)"/>
+        <stop offset="100%" stop-color="rgba(255,180,60,0)"/>
+      </radialGradient>
+
+      <radialGradient id="wetSoil" cx="50%" cy="50%" r="50%">
+        <stop offset="0%"   stop-color="#161210"/>
+        <stop offset="100%" stop-color="#201808"/>
+      </radialGradient>
+
+      <radialGradient id="moldGrad" cx="40%" cy="40%" r="60%">
+        <stop offset="0%"   stop-color="#5a6830"/>
+        <stop offset="100%" stop-color="#2e3a18"/>
+      </radialGradient>
+
+      <clipPath id="potClip">
+        <polygon points="94,100 206,100 222,230 78,230"/>
+      </clipPath>
+    </defs>
+
+    <g id="g-pot">
+      <ellipse cx="150" cy="236" rx="75" ry="8" fill="rgba(0,0,0,0.35)"/>
+      <polygon points="94,104 206,104 222,232 78,232"
+               fill="url(#potMain)" stroke="#3a1e08" stroke-width="1.2"/>
+      <polygon points="185,104 206,104 222,232 200,232"
+               fill="url(#potShadow)"/>
+      <polygon points="94,104 206,104 222,232 78,232"
+               fill="url(#potShine)"/>
+      <line x1="84" y1="155" x2="215" y2="155" stroke="rgba(0,0,0,0.12)" stroke-width="1.5"/>
+      <line x1="80" y1="190" x2="218" y2="190" stroke="rgba(0,0,0,0.09)" stroke-width="1"/>
+      <path d="M108 120 Q110 138 105 152 Q103 163 107 175"
+            stroke="rgba(0,0,0,0.18)" stroke-width="0.8" fill="none"/>
+      <path d="M172 140 Q175 157 171 168"
+            stroke="rgba(0,0,0,0.1)" stroke-width="0.6" fill="none"/>
+
+      <rect x="82" y="90" width="136" height="18" rx="5"
+            fill="url(#rimGrad)" stroke="#4a2608" stroke-width="1"/>
+      <rect x="84" y="90" width="132" height="5" rx="3"
+            fill="rgba(255,210,140,0.12)"/>
+      <rect x="82" y="104" width="136" height="3"
+            fill="rgba(0,0,0,0.18)"/>
+
+      <ellipse id="e-soil" cx="150" cy="102" rx="60" ry="14"
+               fill="url(#soilGrad)" stroke="#160c02" stroke-width="0.6"/>
+      <g opacity="0.55" clip-path="url(#potClip)">
+        <circle cx="130" cy="99"  r="3"   fill="#3e2210"/>
+        <circle cx="143" cy="104" r="2"   fill="#341c0a"/>
+        <circle cx="158" cy="100" r="2.5" fill="#3e2210"/>
+        <circle cx="168" cy="105" r="2"   fill="#2e1808"/>
+        <circle cx="120" cy="103" r="1.8" fill="#3a1e0c"/>
+        <circle cx="175" cy="99"  r="1.5" fill="#381c08"/>
+        <circle cx="112" cy="100" r="2"   fill="#3a2010"/>
+      </g>
+    </g>
+
+    <g id="g-stem"
+       style="transform-origin: 150px 102px; transition: transform 5s cubic-bezier(0.3,0,0.15,1);">
+
+      <path id="stem-path"
+            d="M150,102 C149,78 148,50 150,10"
+            fill="none" stroke="url(#stemGrad)" stroke-width="7" stroke-linecap="round"/>
+      <path d="M151,102 C150,78 149.5,50 151,10"
+            fill="none" stroke="rgba(255,255,200,0.07)" stroke-width="2.5" stroke-linecap="round"/>
+
+      <g id="g-leaves">
+        <g id="leaf-ul-g" style="transform-origin:148px 52px; transform:rotate(0deg); transition:transform 5s cubic-bezier(0.3,0,0.15,1);">
+          <path d="M148,52 C130,44 108,36 94,20 C110,30 130,42 148,52 Z"
+                fill="url(#leafGL)" stroke="#1a5008" stroke-width="0.6"/>
+          <path d="M148,52 C130,44 108,36 94,20"
+                fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+          <path d="M128,44 C125,38 124,33 128,26"
+                fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+          <path d="M114,38 C112,33 112,27 115,22"
+                fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="0.4"/>
+        </g>
+        <g id="leaf-ur-g" style="transform-origin:152px 32px; transform:rotate(0deg); transition:transform 5s cubic-bezier(0.3,0,0.15,1);">
+          <path d="M152,32 C170,24 194,16 208,2 C194,10 172,20 152,32 Z"
+                fill="url(#leafGR)" stroke="#1a5008" stroke-width="0.6"/>
+          <path d="M152,32 C170,24 194,16 208,2"
+                fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+          <path d="M172,24 C174,19 176,14 179,10"
+                fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+        </g>
+        <g id="leaf-ll-g" style="transform-origin:148px 74px; transform:rotate(0deg); transition:transform 5s cubic-bezier(0.3,0,0.15,1);">
+          <path d="M148,74 C126,64 96,54 78,36 C100,48 128,62 148,74 Z"
+                fill="url(#leafGSL)" stroke="#185206" stroke-width="0.6"/>
+          <path d="M148,74 C126,64 96,54 78,36"
+                fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+          <path d="M120,62 C116,54 115,47 120,40"
+                fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+          <path d="M100,53 C97,45 97,37 101,31"
+                fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="0.4"/>
+        </g>
+        <g id="leaf-lr-g" style="transform-origin:152px 60px; transform:rotate(0deg); transition:transform 5s cubic-bezier(0.3,0,0.15,1);">
+          <path d="M152,60 C172,50 202,40 220,24 C200,36 172,48 152,60 Z"
+                fill="url(#leafGSR)" stroke="#185206" stroke-width="0.6"/>
+          <path d="M152,60 C172,50 202,40 220,24"
+                fill="none" stroke="rgba(0,0,0,0.2)" stroke-width="1"/>
+          <path d="M178,46 C182,40 185,34 188,28"
+                fill="none" stroke="rgba(0,0,0,0.1)" stroke-width="0.5"/>
+        </g>
+      </g>
+    </g>
+
+    <g id="g-head"
+       style="transform-origin: 150px 10px; transition: transform 5s cubic-bezier(0.3,0,0.15,1);">
+
+      <g id="g-petals-outer" style="transform-origin:150px 10px;">
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalA)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalB)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(22.5  150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalA)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(45    150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalB)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(67.5  150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalA)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(90    150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalB)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(112.5 150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalA)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(135   150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalB)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(157.5 150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalA)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(180   150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalB)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(202.5 150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalA)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(225   150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalB)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(247.5 150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalA)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(270   150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalB)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(292.5 150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalA)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(315   150 10)"/>
+        <ellipse cx="150" cy="-22" rx="9"  ry="26" fill="url(#petalB)" stroke="rgba(140,80,0,0.25)" stroke-width="0.5" transform="rotate(337.5 150 10)"/>
+      </g>
+
+      <g id="g-petals-inner" style="transform-origin:150px 10px;">
+        <ellipse cx="150" cy="-12" rx="6" ry="16" fill="url(#petalC)" opacity="0.85" transform="rotate(11.25  150 10)"/>
+        <ellipse cx="150" cy="-12" rx="6" ry="16" fill="url(#petalC)" opacity="0.85" transform="rotate(56.25  150 10)"/>
+        <ellipse cx="150" cy="-12" rx="6" ry="16" fill="url(#petalC)" opacity="0.85" transform="rotate(101.25 150 10)"/>
+        <ellipse cx="150" cy="-12" rx="6" ry="16" fill="url(#petalC)" opacity="0.85" transform="rotate(146.25 150 10)"/>
+        <ellipse cx="150" cy="-12" rx="6" ry="16" fill="url(#petalC)" opacity="0.85" transform="rotate(191.25 150 10)"/>
+        <ellipse cx="150" cy="-12" rx="6" ry="16" fill="url(#petalC)" opacity="0.85" transform="rotate(236.25 150 10)"/>
+        <ellipse cx="150" cy="-12" rx="6" ry="16" fill="url(#petalC)" opacity="0.85" transform="rotate(281.25 150 10)"/>
+        <ellipse cx="150" cy="-12" rx="6" ry="16" fill="url(#petalC)" opacity="0.85" transform="rotate(326.25 150 10)"/>
+      </g>
+
+      <circle cx="150" cy="10" r="28" fill="url(#discGrad)" stroke="rgba(30,10,0,0.5)" stroke-width="1"/>
+      <circle cx="150" cy="10" r="28" fill="url(#discGlow)"/>
+      <g id="g-seeds" fill="rgba(25,10,2,0.65)">
+        <circle cx="150"    cy="4"    r="1.6"/>
+        <circle cx="155.6"  cy="5.8"  r="1.6"/>
+        <circle cx="158"    cy="11.5" r="1.6"/>
+        <circle cx="155.2"  cy="17"   r="1.6"/>
+        <circle cx="149.5"  cy="19.2" r="1.6"/>
+        <circle cx="143.8"  cy="17"   r="1.6"/>
+        <circle cx="141.2"  cy="11.2" r="1.6"/>
+        <circle cx="144"    cy="5.5"  r="1.6"/>
+        <circle cx="150"    cy="-4"   r="1.4"/>
+        <circle cx="156.8"  cy="-2.5" r="1.4"/>
+        <circle cx="162.2"  cy="2.4"  r="1.4"/>
+        <circle cx="164.4"  cy="9"    r="1.4"/>
+        <circle cx="162.6"  cy="15.8" r="1.4"/>
+        <circle cx="157.4"  cy="21"   r="1.4"/>
+        <circle cx="150.2"  cy="23.5" r="1.4"/>
+        <circle cx="143"    cy="21.4" r="1.4"/>
+        <circle cx="137.4"  cy="15.8" r="1.4"/>
+        <circle cx="135.4"  cy="9"    r="1.4"/>
+        <circle cx="137.6"  cy="2.4"  r="1.4"/>
+        <circle cx="143.2"  cy="-2.5" r="1.4"/>
+        <circle cx="150"    cy="-11"  r="1.2"/>
+        <circle cx="158"    cy="-9.5" r="1.2"/>
+        <circle cx="165.2"  cy="-5.2" r="1.2"/>
+        <circle cx="170"    cy="2"    r="1.2"/>
+        <circle cx="171.4"  cy="10.2" r="1.2"/>
+        <circle cx="168.6"  cy="18"   r="1.2"/>
+        <circle cx="163.2"  cy="24.2" r="1.2"/>
+        <circle cx="156"    cy="27.5" r="1.2"/>
+        <circle cx="148.4"  cy="28.2" r="1.2"/>
+        <circle cx="140.8"  cy="26"   r="1.2"/>
+        <circle cx="134.4"  cy="21.2" r="1.2"/>
+        <circle cx="130"    cy="14.2" r="1.2"/>
+        <circle cx="128.6"  cy="6.2"  r="1.2"/>
+        <circle cx="130.4"  cy="-1.8" r="1.2"/>
+        <circle cx="135.2"  cy="-7.8" r="1.2"/>
+        <circle cx="142"    cy="-10.8" r="1.2"/>
+      </g>
+      <ellipse cx="143" cy="3" rx="6" ry="4"
+               fill="rgba(255,200,80,0.08)" transform="rotate(-20 143 3)"/>
+    </g>
+
+    <g id="g-mold"></g>
+  </svg>
+
+</div>
+
+<svg id="can-wrap" viewBox="0 0 130 100" xmlns="http://www.w3.org/2000/svg"
+     style="position:fixed;z-index:30;left:0;top:0;width:130px;height:100px;">
+  <defs>
+    <linearGradient id="cBodyGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%"   stop-color="#4a6e2c"/>
+      <stop offset="45%"  stop-color="#365220"/>
+      <stop offset="100%" stop-color="#223a12"/>
+    </linearGradient>
+    <linearGradient id="cLidGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%"   stop-color="#3e6025"/>
+      <stop offset="100%" stop-color="#264615"/>
+    </linearGradient>
+    <radialGradient id="cShine" cx="25%" cy="22%" r="55%">
+      <stop offset="0%"   stop-color="rgba(255,255,200,0.12)"/>
+      <stop offset="100%" stop-color="rgba(255,255,200,0)"/>
+    </radialGradient>
+  </defs>
+  <rect x="22" y="25" width="60" height="48" rx="8"
+        fill="url(#cBodyGrad)" stroke="#1c3410" stroke-width="1.5"/>
+  <rect x="22" y="25" width="60" height="48" rx="8" fill="url(#cShine)"/>
+  <rect x="64" y="26" width="17" height="46" rx="0 8 8 0"
+        fill="rgba(0,0,0,0.18)"/>
+  <rect x="26" y="42" width="52" height="12" rx="2"
+        fill="rgba(0,0,0,0.12)" stroke="rgba(0,0,0,0.08)" stroke-width="0.5"/>
+  <rect x="24" y="17" width="56" height="11" rx="4"
+        fill="url(#cLidGrad)" stroke="#1a3010" stroke-width="1"/>
+  <rect x="26" y="18" width="52" height="4" rx="2"
+        fill="rgba(255,255,200,0.08)"/>
+  <path d="M76 32 Q100 28 102 48 Q102 66 78 70"
+        fill="none" stroke="#1c3410" stroke-width="8" stroke-linecap="round"/>
+  <path d="M76 32 Q100 28 102 48 Q102 66 78 70"
+        fill="none" stroke="rgba(255,255,180,0.06)" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M22 38 Q6 36 2 52 L12 60 Q14 52 22 52 Z"
+        fill="url(#cBodyGrad)" stroke="#1c3410" stroke-width="1"/>
+  <circle cx="9" cy="58" r="9" fill="#2a4e18" stroke="#1a3410" stroke-width="1.2"/>
+  <circle cx="9" cy="58" r="9" fill="rgba(255,255,200,0.04)"/>
+  <g fill="#183410">
+    <circle cx="6"  cy="55" r="1"/>
+    <circle cx="10" cy="54" r="1"/>
+    <circle cx="13" cy="56" r="1"/>
+    <circle cx="7"  cy="58" r="1"/>
+    <circle cx="11" cy="59" r="1"/>
+    <circle cx="5"  cy="61" r="1"/>
+    <circle cx="13" cy="62" r="1"/>
+    <circle cx="9"  cy="63" r="1"/>
+  </g>
+</svg>
+
+<div id="cursor-dot"></div>
+
+<div id="paper-overlay" onclick="closePaper()">
+  <div id="paper-doc" onclick="event.stopPropagation()">
+    <span class="paper-word">TRUTH</span>
+    <div class="paper-hint">click anywhere to close</div>
+  </div>
+</div>
+
+<div id="stage-label"></div>
+
+<script>
+  var decay      = 0;
+  var DECAY_FULL = 48000;
+  var isHolding  = false;
+  var isPouring  = false;
+  var lastTime   = null;
+  var dropPool   = [];
+  var dropTimer  = 0;
+  var moldSpawned = false;
+  var canX = window.innerWidth * 0.70;
+  var canY = window.innerHeight * 0.30;
+  var grabOffX = 0, grabOffY = 0;
+
+  var canEl     = document.getElementById('can-wrap');
+  var cursorDot = document.getElementById('cursor-dot');
+
+  canEl.addEventListener('mousedown', function(e) {
+    e.preventDefault();
+    isHolding = true;
+    var r = canEl.getBoundingClientRect();
+    grabOffX = e.clientX - r.left;
+    grabOffY = e.clientY - r.top;
+    canEl.classList.add('grabbed');
+    canEl.style.transform = 'rotate(-42deg)';
+    checkPouring();
+    document.getElementById('grab-hint').classList.add('hide');
+  });
+
+  document.addEventListener('mousemove', function(e) {
+    cursorDot.style.left = e.clientX + 'px';
+    cursorDot.style.top  = e.clientY + 'px';
+    if (isHolding) {
+      canX = e.clientX - grabOffX;
+      canY = e.clientY - grabOffY;
+      canEl.style.left = canX + 'px';
+      canEl.style.top  = canY + 'px';
+      checkPouring();
+    }
+  });
+
+  document.addEventListener('mouseup', function() {
+    if (!isHolding) return;
+    isHolding = false;
+    isPouring = false;
+    canEl.classList.remove('grabbed');
+    canEl.style.transform = 'rotate(0deg)';
+  });
+
+  function getSpoutTip() {
+    var r = canEl.getBoundingClientRect();
+    var pivotX = r.left + r.width  * 0.55;
+    var pivotY = r.top  + r.height * 0.40;
+    var roseLocalX = r.left + (9  / 130) * r.width;
+    var roseLocalY = r.top  + (58 / 100) * r.height;
+    var dx = roseLocalX - pivotX;
+    var dy = roseLocalY - pivotY;
+    var angle = isHolding ? -42 * Math.PI / 180 : 0;
+    var rx2 = dx * Math.cos(angle) - dy * Math.sin(angle);
+    var ry2 = dx * Math.sin(angle) + dy * Math.cos(angle);
+    return { x: pivotX + rx2, y: pivotY + ry2 };
+  }
+
+  function getFlowerZone() {
+    var s = document.getElementById('main-svg');
+    var r = s.getBoundingClientRect();
+    return { x: r.left + r.width * 0.5, y: r.top + r.height * 0.05 };
+  }
+
+  function dist(ax, ay, bx, by) {
+    return Math.sqrt((ax-bx)*(ax-bx)+(ay-by)*(ay-by));
+  }
+
+  function checkPouring() {
+    if (decay >= 1) { isPouring = false; return; }
+    var tip = getSpoutTip();
+    var fz  = getFlowerZone();
+    isPouring = isHolding && dist(tip.x, tip.y, fz.x, fz.y) < 180;
+  }
+
+  function spawnDroplet() {
+    var tip = getSpoutTip();
+    var d = document.createElement('div');
+    d.className = 'droplet';
+    var sz = 3.5 + Math.random() * 3;
+    d.style.cssText =
+      'width:' + sz + 'px;' +
+      'height:' + (sz * 1.7) + 'px;' +
+      'left:' + (tip.x + (Math.random()-0.5)*8) + 'px;' +
+      'top:'  + tip.y + 'px;' +
+      'background:radial-gradient(ellipse at 35% 25%,' +
+        (decay < 0.5 ? '#b8e0f8' : '#90c4e8') + ' 0%,' +
+        (decay < 0.5 ? '#6aaad0' : '#4a88b0') + ' 55%,' +
+        (decay < 0.5 ? '#4a80aa' : '#2a5880') + ' 100%);';
+    document.body.appendChild(d);
+    dropPool.push({
+      el: d,
+      x: tip.x + (Math.random()-0.5)*6,
+      y: tip.y,
+      vx: (Math.random()-0.5)*1.4 - 0.3,
+      vy: 1.8 + Math.random() * 2.2,
+      life: 1
+    });
+  }
+
+  function updateDroplets(dt) {
+    for (var i = dropPool.length-1; i >= 0; i--) {
+      var dp = dropPool[i];
+      dp.x  += dp.vx;
+      dp.y  += dp.vy;
+      dp.vy += 0.32;
+      dp.life -= dt / 950;
+      dp.el.style.left    = dp.x + 'px';
+      dp.el.style.top     = dp.y + 'px';
+      dp.el.style.opacity = Math.max(0, dp.life * 0.88);
+      if (dp.life <= 0 || dp.y > window.innerHeight + 30) {
+        dp.el.remove();
+        dropPool.splice(i, 1);
+      }
+    }
+  }
+
+  function lerp(a, b, t) { return a + (b-a) * t; }
+  function lerpHex(c1, c2, t) {
+    t = Math.max(0, Math.min(1, t));
+    var r1=parseInt(c1.slice(1,3),16), g1=parseInt(c1.slice(3,5),16), b1=parseInt(c1.slice(5,7),16);
+    var r2=parseInt(c2.slice(1,3),16), g2=parseInt(c2.slice(3,5),16), b2=parseInt(c2.slice(5,7),16);
+    var r=Math.round(r1+(r2-r1)*t).toString(16).padStart(2,'0');
+    var g=Math.round(g1+(g2-g1)*t).toString(16).padStart(2,'0');
+    var b=Math.round(b1+(b2-b1)*t).toString(16).padStart(2,'0');
+    return '#'+r+g+b;
+  }
+  function clamp01(v) { return Math.max(0, Math.min(1, v)); }
+  function easeIn(t)  { return t*t; }
+  function easeOut(t) { return 1-(1-t)*(1-t); }
+
+  var PC = ['#f8d030','#ddb820','#a07c18','#5a380e','#1e1004'];
+  var SC = ['#347c1e','#708018','#4a5408','#2e2808','#101004'];
+  var LC = ['#3a8e22','#889010','#7a6408','#4a3808','#161004'];
+  var CC = ['#8a5020','#4a2c10','#2a1408','#100804','#060202'];
+
+  function samplePalette(pal, t) {
+    t = clamp01(t);
+    var n = pal.length - 1;
+    var i = Math.min(n-1, Math.floor(t * n));
+    var f = (t * n) - i;
+    return lerpHex(pal[i], pal[i+1], f);
+  }
+
+  var petalDroop   = new Array(16).fill(0);
+  var petalCurl    = new Array(16).fill(0);
+  var petalFallen  = new Array(16).fill(false);
+  var petalFallProg= new Array(16).fill(0);
+  var petalOffset  = Array.from({length:16}, function() { return 0.7 + Math.random()*0.6; });
+  var moldSpawned  = false;
+  var lastLabelMsg = '';
+
+  var spotsAdded = false;
+
+  function addWaterSpots() {
+    if (spotsAdded) return;
+    spotsAdded = true;
+    var svg = document.getElementById('main-svg');
+    var ns  = 'http://www.w3.org/2000/svg';
+    var spotData = [
+      {cx:102, cy:200, rx:4, ry:3, rot:-20},
+      {cx:118, cy:215, rx:3, ry:2, rot:10},
+      {cx:196, cy:185, rx:5, ry:3, rot:15},
+      {cx:182, cy:210, rx:3, ry:2.5, rot:-8},
+      {cx:90,  cy:240, rx:3, ry:2, rot:25},
+      {cx:210, cy:230, rx:4, ry:2.5, rot:-18},
+    ];
+    spotData.forEach(function(s, i) {
+      var e = document.createElementNS(ns, 'ellipse');
+      e.setAttribute('cx', s.cx); e.setAttribute('cy', s.cy);
+      e.setAttribute('rx', s.rx); e.setAttribute('ry', s.ry);
+      e.setAttribute('fill', 'rgba(10,20,5,0.55)');
+      e.setAttribute('transform', 'rotate('+s.rot+' '+s.cx+' '+s.cy+')');
+      e.style.opacity = '0';
+      e.style.transition = 'opacity '+(2+i*0.4)+'s ease';
+      e.setAttribute('class','water-spot');
+      svg.appendChild(e);
+    });
+  }
+
+  function applyDecay(t) {
+
+    var tY  = clamp01(easeIn(t * 2.2));
+    var tW  = clamp01(easeIn(clamp01((t - 0.18) * 2.8)));
+    var tB  = clamp01(easeIn(clamp01((t - 0.40) * 2.6)));
+    var tSK = clamp01(easeOut(clamp01((t - 0.25) * 2.4)));
+    var tHD = clamp01(easeOut(clamp01((t - 0.20) * 2.0)));
+    var tC  = clamp01(easeIn(clamp01((t - 0.70) * 3.8)));
+    var tM  = clamp01(clamp01((t - 0.55) * 3.0));
+    var tSP = clamp01(clamp01((t - 0.15) * 4.0));
+
+    var pColor = samplePalette(PC, tY*0.35 + tB*0.45 + tC*0.20);
+    var pColorDark = samplePalette(PC, tY*0.40 + tB*0.50 + tC*0.10);
+
+    document.getElementById('pa0').setAttribute('stop-color', samplePalette(PC, tY*0.30));
+    document.getElementById('pa1').setAttribute('stop-color', samplePalette(PC, tY*0.38 + tB*0.30));
+    document.getElementById('pa2').setAttribute('stop-color', pColorDark);
+    document.getElementById('pb0').setAttribute('stop-color', samplePalette(PC, tY*0.28));
+    document.getElementById('pb1').setAttribute('stop-color', samplePalette(PC, tY*0.36 + tB*0.28));
+    document.getElementById('pb2').setAttribute('stop-color', pColorDark);
+    document.getElementById('pc0').setAttribute('stop-color', samplePalette(PC, tY*0.32 + tB*0.20));
+    document.getElementById('pc1').setAttribute('stop-color', samplePalette(PC, tY*0.42 + tB*0.35));
+
+    var outerPetals = document.querySelectorAll('#g-petals-outer ellipse');
+    var innerPetals = document.querySelectorAll('#g-petals-inner ellipse');
+
+    outerPetals.forEach(function(p, i) {
+      var offset = petalOffset[i];
+      var droopT = clamp01((tW - 0.05*((i%4)+1)*0.3) * offset);
+      petalDroop[i] = droopT;
+
+      var curlT  = clamp01((tB - 0.08*((i%3)+1)*0.25) * offset);
+      petalCurl[i] = curlT;
+
+      var fallThreshold = 0.68 + (i / 16) * 0.28;
+      if (t >= fallThreshold && !petalFallen[i]) {
+        petalFallProg[i] = Math.min(1, petalFallProg[i] + 0.012);
+      }
+
+      var origRot = p.getAttribute('data-rot') || '0';
+      var droopPx  = droopT * 18;
+      var scaleY   = 1 - curlT * 0.35;
+      var scaleX   = 1 + curlT * 0.12;
+      var fallDY   = petalFallProg[i] * 60;
+      var fallOp   = 1 - petalFallProg[i];
+
+      var fullTransform = origRot +
+        ' translate(0,' + droopPx.toFixed(1) + ')' +
+        ' scale(' + scaleX.toFixed(3) + ',' + scaleY.toFixed(3) + ')' +
+        ' translate(0,' + fallDY.toFixed(1) + ')';
+      p.setAttribute('transform', fullTransform);
+      p.setAttribute('opacity', (fallOp * (1 - tC*0.15)).toFixed(3));
+    });
+
+    if (!outerPetals[0].getAttribute('data-rot')) {
+      var rotValues = ['','rotate(22.5 150 10)','rotate(45 150 10)','rotate(67.5 150 10)',
+        'rotate(90 150 10)','rotate(112.5 150 10)','rotate(135 150 10)','rotate(157.5 150 10)',
+        'rotate(180 150 10)','rotate(202.5 150 10)','rotate(225 150 10)','rotate(247.5 150 10)',
+        'rotate(270 150 10)','rotate(292.5 150 10)','rotate(315 150 10)','rotate(337.5 150 10)'];
+      outerPetals.forEach(function(p, i) { p.setAttribute('data-rot', rotValues[i]); });
+    }
+
+    innerPetals.forEach(function(p) {
+      p.setAttribute('fill', samplePalette(PC, tY*0.28 + tB*0.40));
+      p.setAttribute('opacity', (1 - tC*0.85).toFixed(3));
+    });
+
+    document.getElementById('dc0').setAttribute('stop-color', samplePalette(CC, tB*0.45 + tC*0.35));
+    document.getElementById('dc1').setAttribute('stop-color', samplePalette(CC, tB*0.50 + tC*0.40));
+    document.getElementById('dc2').setAttribute('stop-color', samplePalette(CC, tB*0.55 + tC*0.45));
+    document.getElementById('g-seeds').setAttribute('opacity', (0.65 - tB*0.35 - tC*0.25).toFixed(3));
+
+    var sc = samplePalette(SC, tY*0.25 + tW*0.20 + tB*0.40 + tC*0.15);
+    document.getElementById('sg0').setAttribute('stop-color', lerpHex(sc,'#000000',0.20));
+    document.getElementById('sg1').setAttribute('stop-color', sc);
+    document.getElementById('sg2').setAttribute('stop-color', lerpHex(sc,'#000000',0.25));
+
+    var stemLean   = tSK * 16;
+    var stemBuckle = tC  * 18;
+    document.getElementById('g-stem').style.transform =
+      'rotate(' + (stemLean + stemBuckle).toFixed(2) + 'deg)';
+
+    var headDeg = tHD * 38 + tC * 30;
+    var headDY  = tHD * 8  + tC * 30;
+    var headOp  = 1 - tC * 0.45;
+    document.getElementById('g-head').style.transform =
+      'rotate('+headDeg.toFixed(2)+'deg) translateY('+headDY.toFixed(1)+'px)';
+    document.getElementById('g-head').style.opacity = headOp.toFixed(3);
+
+    var lc = samplePalette(LC, tY*0.30 + tW*0.15 + tB*0.40 + tC*0.15);
+    var lc2 = samplePalette(LC, tY*0.32 + tW*0.16 + tB*0.42 + tC*0.10);
+    ['lg0','lg1','lg2','lg3','lg4','lg5','lg6','lg7'].forEach(function(id, i) {
+      document.getElementById(id).setAttribute('stop-color', i%2===0 ? lc : lc2);
+    });
+    var ld = tW * 14 + tC * 24;
+    document.getElementById('leaf-ul-g').style.transform = 'rotate('+(ld*0.65).toFixed(1)+'deg)';
+    document.getElementById('leaf-ur-g').style.transform = 'rotate(-'+(ld*0.55).toFixed(1)+'deg)';
+    document.getElementById('leaf-ll-g').style.transform = 'rotate('+(ld*0.90).toFixed(1)+'deg)';
+    document.getElementById('leaf-lr-g').style.transform = 'rotate(-'+(ld*0.80).toFixed(1)+'deg)';
+
+    var leafOp = 1 - tC * 0.55;
+    ['leaf-ul-g','leaf-ur-g','leaf-ll-g','leaf-lr-g'].forEach(function(id) {
+      document.getElementById(id).style.opacity = leafOp.toFixed(3);
+    });
+
+    if (tSP > 0) {
+      addWaterSpots();
+      document.querySelectorAll('.water-spot').forEach(function(s, i) {
+        var stag = clamp01((tSP - i*0.08) * 3);
+        s.style.opacity = (stag * 0.7).toFixed(3);
+      });
+    }
+
+    var soilT = clamp01(t * 1.8);
+    document.getElementById('sg-soil0').setAttribute('stop-color', lerpHex('#2e1c0a','#0a1008', soilT));
+    document.getElementById('sg-soil1').setAttribute('stop-color', lerpHex('#1a1006','#060e06', soilT));
+    document.getElementById('e-soil').setAttribute('fill', t > 0.25 ? 'url(#wetSoil)' : 'url(#soilGrad)');
+
+    if (t > 0.04) {
+      var pw = Math.min(210, t * 380);
+      var ph = Math.min(36,  t * 68);
+      var po = Math.min(0.92, t * 2.5);
+      document.getElementById('puddle').style.width   = pw + 'px';
+      document.getElementById('puddle').style.height  = ph + 'px';
+      document.getElementById('puddle').style.opacity = po;
+    }
+
+    if (tM > 0 && !moldSpawned) { moldSpawned = true; spawnMold(); }
+    if (tM > 0) {
+      document.querySelectorAll('.mold-spore').forEach(function(s, i) {
+        var stag = clamp01((tM - i*0.055) * 2.5);
+        s.style.opacity = (stag * 0.85).toFixed(3);
+      });
+    }
+
+    if (tB > 0) {
+      document.getElementById('bg').style.background =
+        'radial-gradient(ellipse 60% 40% at 50% 0%,' +
+          lerpHex('#1a1408','#0a1008', tB) + ' 0%, transparent 70%),' +
+        'radial-gradient(ellipse 80% 50% at 20% 80%, #0e0a04 0%, transparent 60%),' +
+        'radial-gradient(ellipse 80% 50% at 80% 80%, #0e0a04 0%, transparent 60%),' +
+        lerpHex('#07050a','#04080a', tB);
+    }
+
+    var msgs = [
+      [0.06, 'the soil grows heavy.'],
+      [0.20, 'the colour is leaving.'],
+      [0.34, 'it begins to lean.'],
+      [0.50, 'the leaves curl inward.'],
+      [0.64, 'the smell of rot.'],
+      [0.78, 'something is ending.'],
+      [0.90, 'it cannot be saved now.'],
+    ];
+    var msg = '';
+    for (var i = msgs.length-1; i >= 0; i--) {
+      if (t >= msgs[i][0]) { msg = msgs[i][1]; break; }
+    }
+    var label = document.getElementById('stage-label');
+    if (msg && msg !== lastLabelMsg) {
+      lastLabelMsg = msg;
+      label.classList.remove('show','urgent');
+      setTimeout((function(m, urgent){ return function(){
+        label.textContent = m;
+        label.classList.add('show');
+        if (urgent) label.classList.add('urgent');
+      };})(msg, t > 0.72), 700);
+    }
+
+    if (t >= 1 && document.getElementById('falling-note').style.display === 'none') {
+      var note = document.getElementById('falling-note');
+      note.style.display = 'block';
+      note.classList.add('drop');
+      label.classList.remove('show','urgent');
+      note.addEventListener('animationend', function() {
+        note.classList.remove('drop');
+        note.classList.add('landed');
+        note.onclick = openPaper;
+        setTimeout(function() {
+          label.textContent = 'something stirs beneath.';
+          label.classList.add('show','urgent');
+        }, 400);
+      }, { once: true });
+    }
+  }
+
+  function spawnMold() {
+    var g = document.getElementById('g-mold');
+    var pts = [
+      {x:148,y:82,r:3.5},{x:155,y:72,r:2.8},{x:140,y:68,r:3},
+      {x:152,y:90,r:2.5},{x:144,y:78,r:2.2},{x:158,y:84,r:3.2},
+      {x:138,y:86,r:2},{x:162,y:76,r:2.8},{x:145,y:58,r:2.2},
+      {x:153,y:62,r:1.8},{x:136,y:74,r:2.5},{x:164,y:88,r:2},
+    ];
+    pts.forEach(function(p, i) {
+      var c = document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx', p.x); c.setAttribute('cy', p.y); c.setAttribute('r', p.r);
+      c.setAttribute('class','mold-spore');
+      c.setAttribute('fill','url(#moldGrad)');
+      c.style.opacity = '0';
+      c.style.transition = 'opacity ' + (3 + i*0.3) + 's ease';
+      g.appendChild(c);
+    });
+  }
+
+  function openPaper()  { document.getElementById('paper-overlay').classList.add('show'); }
+  function closePaper() { document.getElementById('paper-overlay').classList.remove('show'); }
+
+  function spawnDust() {
+    var d = document.createElement('div');
+    d.className = 'dust';
+    var sz = 1.5 + Math.random()*2.5;
+    d.style.cssText =
+      'width:'+sz+'px;height:'+sz+'px;' +
+      'left:'+(10+Math.random()*80)+'vw;' +
+      'bottom:'+(38+Math.random()*28)+'vh;' +
+      '--dx:'+(Math.random()*50-25)+'px;' +
+      'animation-duration:'+(7+Math.random()*10)+'s;' +
+      'animation-delay:'+(Math.random()*3)+'s;';
+    document.getElementById('scene').appendChild(d);
+    setTimeout(function(){ d.remove(); spawnDust(); }, 7000+Math.random()*10000);
+  }
+  spawnDust(); spawnDust(); spawnDust(); spawnDust();
+
+  function loop(ts) {
+    if (!lastTime) lastTime = ts;
+    var dt = Math.min(ts - lastTime, 50);
+    lastTime = ts;
+
+    if (isPouring && decay < 1) {
+      decay += dt / DECAY_FULL;
+      decay  = Math.min(1, decay);
+      applyDecay(decay);
+
+      dropTimer += dt;
+      var dropInterval = 42 - decay * 18;
+      while (dropTimer > dropInterval) {
+        spawnDroplet();
+        dropTimer -= dropInterval;
+      }
+    }
+
+    if (decay > 0.68) {
+      var anyFalling = false;
+      var outerPetals = document.querySelectorAll('#g-petals-outer ellipse');
+      outerPetals.forEach(function(p, i) {
+        var fallThreshold = 0.68 + (i / 16) * 0.28;
+        if (decay >= fallThreshold && petalFallProg[i] < 1) {
+          petalFallProg[i] = Math.min(1, petalFallProg[i] + dt * 0.0008);
+          anyFalling = true;
+          var origRot = p.getAttribute('data-rot') || '';
+          var droopPx = petalDroop[i] * 18;
+          var scaleY  = 1 - petalCurl[i] * 0.35;
+          var scaleX  = 1 + petalCurl[i] * 0.12;
+          var fallDY  = petalFallProg[i] * 60;
+          var fallOp  = Math.max(0, 1 - petalFallProg[i]);
+          p.setAttribute('transform',
+            origRot +
+            ' translate(0,' + droopPx.toFixed(1) + ')' +
+            ' scale(' + scaleX.toFixed(3) + ',' + scaleY.toFixed(3) + ')' +
+            ' translate(0,' + fallDY.toFixed(1) + ')');
+          p.setAttribute('opacity', fallOp.toFixed(3));
+        }
+      });
+    }
+
+    updateDroplets(dt);
+    requestAnimationFrame(loop);
+  }
+
+  canEl.style.left = canX + 'px';
+  canEl.style.top  = canY + 'px';
+  requestAnimationFrame(loop);
+</script>
+</body>
+</html>

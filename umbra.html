@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Garden of Honor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100vh;
+      background: #000;
+      font-family: 'Courier Prime', monospace;
+    }
+
+    /* Faint symbol watermark — fixed, centred, barely there */
+    #bg-symbol {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.04;
+    }
+
+    #bg-symbol svg {
+      width: 520px;
+      height: 520px;
+    }
+
+    /* Letter container */
+    .letter-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin: 0 auto;
+      padding: 6rem 2rem 8rem;
+      min-height: 100vh;
+    }
+
+    #letter-text {
+      font-family: 'Courier Prime', monospace;
+      font-size: 15px;
+      line-height: 2;
+      color: #3a3a3a;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    /* Blinking cursor */
+    #cursor {
+      display: inline-block;
+      width: 2px;
+      height: 1.1em;
+      background: #2a2a2a;
+      margin-left: 1px;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0; }
+    }
+
+    /* Sincerely line — slightly different colour */
+    .letter-sign {
+      color: #2a2a2a;
+    }
+
+    /* Hidden until typing ends */
+    #end-note {
+      display: none;
+      margin-top: 3rem;
+      font-family: 'Special Elite', serif;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #111;
+      text-transform: uppercase;
+    }
+
+    @media (max-width: 560px) {
+      .letter-wrap { padding: 4rem 1.5rem 6rem; }
+      #letter-text { font-size: 14px; }
+      #bg-symbol svg { width: 320px; height: 320px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="bg-symbol">
+    <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <g fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round">
+        <g transform="rotate(-1.2, 50, 50)" stroke-width="1.6" opacity="0.9">
+          <ellipse cx="50.4" cy="49.6" rx="40.5" ry="39.2"/>
+          <ellipse cx="49.8" cy="50.3" rx="27.1" ry="26.4"/>
+          <ellipse cx="50.2" cy="49.9" rx="13.8" ry="14.5"/>
+          <line x1="50" y1="1.5" x2="48.8" y2="12.3"/>
+          <line x1="50.4" y1="87.9" x2="51.2" y2="98.5"/>
+          <line x1="1.4" y1="50.2" x2="12.1" y2="49.6"/>
+          <line x1="87.8" y1="50.7" x2="98.6" y2="49.3"/>
+          <line x1="15.8" y1="16.4" x2="23.9" y2="24.8"/>
+          <line x1="76.3" y1="76.1" x2="85.1" y2="83.6"/>
+          <line x1="84.2" y1="15.7" x2="75.6" y2="24.3"/>
+          <line x1="23.4" y1="77.2" x2="15.1" y2="85.4"/>
+          <line x1="29.8" y1="3.4" x2="32.5" y2="13.8"/>
+          <line x1="70.6" y1="2.9" x2="67.8" y2="13.1"/>
+          <line x1="29.2" y1="97.1" x2="32.8" y2="86.9"/>
+          <line x1="71.3" y1="96.8" x2="68.1" y2="86.4"/>
+          <line x1="2.9" y1="30.5" x2="13.2" y2="33.6"/>
+          <line x1="3.2" y1="70.1" x2="13.5" y2="67.2"/>
+          <line x1="97.1" y1="29.7" x2="86.8" y2="33.1"/>
+          <line x1="96.8" y1="70.8" x2="86.5" y2="67.5"/>
+        </g>
+        <g transform="rotate(0.9, 50, 50) translate(0.6, -0.4)" stroke-width="1.0" opacity="0.75">
+          <ellipse cx="49.6" cy="50.5" rx="39.8" ry="40.7" stroke-dasharray="3.1 0.8 1.4 0.5"/>
+          <ellipse cx="50.5" cy="49.4" rx="26.6" ry="27.5" stroke-dasharray="2.4 0.6"/>
+          <ellipse cx="49.7" cy="50.2" rx="14.4" ry="13.6" stroke-dasharray="1.8 0.4 0.9 0.3"/>
+          <line x1="50.6" y1="2.1" x2="49.4" y2="11.7"/>
+          <line x1="49.8" y1="88.4" x2="50.7" y2="97.9"/>
+          <line x1="2.1" y1="49.5" x2="11.8" y2="50.4"/>
+          <line x1="88.2" y1="49.8" x2="97.9" y2="50.6"/>
+          <line x1="15.2" y1="17.1" x2="24.6" y2="25.2"/>
+          <line x1="75.8" y1="74.7" x2="84.8" y2="84.2"/>
+          <line x1="83.7" y1="16.9" x2="74.9" y2="25.6"/>
+          <line x1="24.1" y1="76.5" x2="15.8" y2="84.1"/>
+          <line x1="31.2" y1="4.1" x2="33.4" y2="12.9"/>
+          <line x1="68.9" y1="3.6" x2="66.5" y2="12.4"/>
+          <line x1="30.8" y1="95.9" x2="33.1" y2="87.1"/>
+          <line x1="70.1" y1="96.4" x2="67.4" y2="87.6"/>
+          <line x1="4.1" y1="31.8" x2="12.7" y2="34.1"/>
+          <line x1="3.8" y1="68.9" x2="12.4" y2="66.3"/>
+          <line x1="95.9" y1="31.2" x2="87.3" y2="34.5"/>
+          <line x1="96.2" y1="69.4" x2="87.6" y2="66.8"/>
+        </g>
+        <g transform="rotate(2.1, 50, 50) translate(-0.8, 0.7)" stroke-width="0.55" opacity="0.5">
+          <ellipse cx="50.7" cy="49.3" rx="40.2" ry="39.5"/>
+          <ellipse cx="49.4" cy="50.7" rx="27.4" ry="26.8"/>
+          <ellipse cx="50.4" cy="50.1" rx="13.5" ry="14.2"/>
+          <line x1="49.2" y1="1.8" x2="50.8" y2="12.5"/>
+          <line x1="51.1" y1="87.5" x2="49.3" y2="98.2"/>
+          <line x1="1.8" y1="51.1" x2="12.6" y2="49.3"/>
+          <line x1="87.4" y1="51.4" x2="98.2" y2="48.7"/>
+          <line x1="16.5" y1="15.8" x2="25.1" y2="23.9"/>
+          <line x1="77.1" y1="75.4" x2="85.8" y2="82.8"/>
+          <line x1="85.1" y1="15.2" x2="76.4" y2="23.8"/>
+          <line x1="22.8" y1="77.9" x2="14.4" y2="86.5"/>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <audio id="bg-audio" src="audio/umbra.mp3" preload="auto"></audio>
+
+  <div class="letter-wrap">
+    <div id="letter-text"></div><span id="cursor"></span>
+    <div id="end-note">— end of transmission —</div>
+  </div>
+
+<script>
+  var letter = "god it... \nit feels so weird, typing this out in person. it's a little cringe honestly. \nhonestly... I don't know what to say.\nbut... here goes. \nIf you made it here, you've seen everything I wanted you to see.\never since i was a kid, I'd always been interested in args, interactive myths. detective work. that kinda stuff. \nI used to search for myth games just to rack my brain around them. surreal game finder was my favourite.\nI always had an urge to engage in this stuff. many didn't catch my eye. and those that did... didn't keep my attention for long.\nI never really found something that satiated that hunger inside me.\na hunger I never really fulfilled. a community that I felt like I was a part of. \ncharacters that were interesting. something that hooked me. \nsaying this now feels out of character, and I hope you completed everything before finding this page. \nthen... I saw this game called \"garden of honor\". it came up on my feed. naturally. I had to check it out. \nthe map was... honestly beautiful. props to whoever built it.\nIt was empty at first. and for a good while. It stayed that way. I met a gardener. I asked if this was a myth. and they told me it wasn't yet. I can't remember who that gardener was. \na few months later, as if it were fate. it popped up on my recommended again. \nthis time. it had some players. \nI can't really go into much detail here. since... frankly. I can't remember. \nthen I found the discord server. \nthen I met all of you. \nI can't describe how thankful I am to have found this game, and such an engaging, talented. and amazing community. \nI know I've done some very... cringe things before, my writing wasn't the best. and I hope you forgive me on that. (yes, I can tell)\nsome of us haven't really interacted much. and that's fine. I'm just happy to be here. \nwith you guys. \nAlways. \nI love you guys. so much. and I hope this community will stay thriving till the end.\nI've spent weeks on this project, as my token of appreciation to you guys. \nmy hand got injured at some point. and I had to halt. \nbut it's fine now. \nbecause, selfishly... I hope to get some kind of reactions out of you guys. \nthen... it would be all worth it. \nforgive me for this epilogue, I'm not exactly the best at writing letters. \nthanks for reading this. even if it was a mess.\nSincerely \n\u2014Umbra.";
+
+  var display = document.getElementById('letter-text');
+  var cursor  = document.getElementById('cursor');
+  var endNote = document.getElementById('end-note');
+  var audio   = document.getElementById('bg-audio');
+
+  var i = 0;
+
+  function nextChar() {
+    if (i >= letter.length) {
+      cursor.style.display = 'none';
+      endNote.style.display = 'block';
+      return;
+    }
+
+    var ch = letter[i];
+    display.textContent += ch;
+    i++;
+
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+
+    var delay = 55;
+    if (ch === '\n')                            delay = 420;
+    else if (ch === '.' || ch === '!' || ch === '?') delay = 260;
+    else if (ch === ',')                        delay = 140;
+    else if (ch === ' ')                        delay = 38;
+    else                                        delay = 45 + Math.random() * 30;
+
+    setTimeout(nextChar, delay);
+  }
+
+  setTimeout(function() {
+    audio.volume = 0.7;
+    audio.play().catch(function() {
+    });
+  }, 5000);
+
+  setTimeout(function() {
+    nextChar();
+  }, 1000);
+</script>
+
+</body>
+</html>

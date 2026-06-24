@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The Garden of Honor — Gallery</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Special+Elite&family=Courier+Prime:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #000;
+      font-family: 'Courier Prime', monospace;
+      min-height: 100vh;
+      color: #555;
+    }
+
+    .piece-wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 4rem 2rem 6rem;
+    }
+
+    .back-link {
+      font-family: 'Special Elite', serif;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #1e1e1e;
+      text-decoration: none;
+      text-transform: uppercase;
+      transition: color 0.3s;
+      display: inline-block;
+      margin-bottom: 3rem;
+    }
+    .back-link:hover { color: #444; }
+
+    .piece-frame {
+      border: 1px solid #1a1a1a;
+      padding: 12px;
+      background: #050505;
+      position: relative;
+      margin-bottom: 2rem;
+    }
+
+    .piece-frame::before,
+    .piece-frame::after {
+      content: '';
+      position: absolute;
+      width: 16px; height: 16px;
+      border-color: #222;
+      border-style: solid;
+    }
+    .piece-frame::before { top: 5px; left: 5px; border-width: 1px 0 0 1px; }
+    .piece-frame::after  { bottom: 5px; right: 5px; border-width: 0 1px 1px 0; }
+
+    .piece-frame img {
+      width: 100%;
+      display: block;
+      max-height: 680px;
+      object-fit: contain;
+      background: #050505;
+    }
+
+    .piece-placeholder {
+      width: 100%;
+      height: 400px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Special Elite', serif;
+      font-size: 10px;
+      letter-spacing: 3px;
+      color: #1a1a1a;
+      text-transform: uppercase;
+      background: #050505;
+    }
+
+    .piece-info {
+      border-left: 1px solid #111;
+      padding-left: 1.5rem;
+    }
+
+    .piece-title {
+      font-family: 'Special Elite', serif;
+      font-size: 20px;
+      letter-spacing: 2px;
+      color: #333;
+      margin-bottom: 0.4rem;
+    }
+
+    .piece-artist {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #222;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+
+    .piece-caption {
+      font-size: 13px;
+      color: #2a2a2a;
+      line-height: 1.8;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="piece-wrap">
+    <a class="back-link" href="gallery.html">&#8592; back to gallery</a>
+
+    <div class="piece-frame" id="piece-frame">
+      <div class="piece-placeholder" id="piece-placeholder">[ image ]</div>
+    </div>
+
+    <div class="piece-info">
+      <div class="piece-title" id="piece-title">untitled</div>
+      <div class="piece-artist" id="piece-artist">unknown gardener</div>
+      <div class="piece-caption" id="piece-caption"></div>
+    </div>
+  </div>
+
+<script>
+  var pieces = [
+    {
+      id:      'piece-001',
+      title:   'Fruity trout',
+      artist:  'Trout',
+      caption: 'What the trout',
+      image:   'images/fruity_trout.png',
+    },
+    {
+      id:      'piece-002',
+      title:   'Gratitude',
+      artist:  'Fig',
+      caption: 'Thank you for joining goh.',
+      image:   'images/goh.png',
+    },
+    {
+      id:      'piece-003',
+      title:   'Fox Pomegranate',
+      artist:  'ᔕ𝑜𝐯',
+      caption: 'hmmmm fox pome.... fox...hmm...',
+      image:   'images/hmmmm_fox_pome...._fox...hmmm...png',
+    },
+    {
+      id:      'piece-004',
+      title:   'Garden of Honor',
+      artist:  'Fig',
+      caption: 'WE ARE GARDEN OF HONOR !!!!!!.',
+      image:   'images/every1.png',
+    },
+    {
+      id:      'piece-005',
+      title:   'Portrait',
+      artist:  'Castor',
+      caption: 'what a nice looking lake. I wonder what it looks like in the winter.',
+      image:   'images/lake_portrait.png',
+    },
+    {
+      id:      'piece-006',
+      title:   'ST. FOLILIAN',
+      artist:  'ᔕ𝑜𝐯',
+      caption: 'Wow lore wow lore ST. FOLILANNNNNN',
+      image:   'images/saintfolilianommmfghghgh.png',
+    },
+    {
+      id:      'piece-007',
+      title:   'Pride',
+      artist:  'Fig',
+      caption: 'be who you aaarree for your priiiiiiiiiiiiiiiide.',
+      image:   'images/pride.png',
+    },
+    {
+      id:      'piece-008',
+      title:   'conversation',
+      artist:  'corhead',
+      caption: 'its always been whats actively hurting us both, driving us apart.',
+      image:   'images/herbium.jpg',
+    },
+    {
+      id:      'piece-009',
+      title:   'lore drop',
+      artist:  'Angel/Mercury',
+      caption: 'L-L-L-LORE DROPPPPP‼️‼️‼️‼️‼️🔥🔥🔥🔥🔥🔥🔥🎉🎉🎉🎉🎉🎉.',
+      image:   'images/lore_drop.png',
+    },
+  ];
+
+  var params = new URLSearchParams(window.location.search);
+  var pieceId = params.get('id');
+  var piece = pieces.find(function(p) { return p.id === pieceId; });
+
+  if (piece) {
+    document.title = piece.title + ' — The Garden of Honor';
+    document.getElementById('piece-title').textContent = piece.title;
+    document.getElementById('piece-artist').textContent = piece.artist;
+    document.getElementById('piece-caption').textContent = piece.caption;
+
+    if (piece.image) {
+      document.getElementById('piece-frame').innerHTML =
+        '<img src="' + piece.image + '" alt="' + piece.title + '" />';
+    }
+  }
+</script>
+
+</body>
+</html>

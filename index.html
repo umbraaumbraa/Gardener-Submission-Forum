@@ -22,13 +22,29 @@
       position: fixed;
       inset: 0;
       pointer-events: none;
-      z-index: 200;
+      z-index: 9000;
       opacity: 0.035;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
       background-size: 128px 128px;
     }
 
-    /* ── Symbol carved behind the paper ── */
+    /* Hidden text — same colour as background. Visible only when page is selected. */
+    .hidden-code {
+      position: fixed;
+      bottom: 1.2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #c8b89a;
+      font-family: 'Courier Prime', monospace;
+      font-size: 13px;
+      letter-spacing: 8px;
+      user-select: text;
+      z-index: 1;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    /* Symbol behind the paper — links to secret.html */
     #behind-symbol {
       position: fixed;
       top: 50%;
@@ -42,6 +58,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      text-decoration: none;
     }
 
     #behind-symbol svg {
@@ -51,7 +68,6 @@
       display: block;
     }
 
-    /* Default: dark carved look — deep shadow, like cut into the surface */
     #behind-symbol .carve {
       fill: none;
       stroke: #1a1208;
@@ -59,20 +75,8 @@
       stroke-linejoin: round;
       stroke-width: 3;
       filter: drop-shadow(0px 2px 2px rgba(255,255,255,0.18)) drop-shadow(0px -1px 1px rgba(0,0,0,0.7));
-      transition: stroke 0.7s ease, filter 0.7s ease;
     }
 
-    /* Glowing state */
-    #behind-symbol.glowing .carve {
-      stroke: #ffffff;
-      filter:
-        drop-shadow(0 0 4px #ffffff)
-        drop-shadow(0 0 12px #a8d4ff)
-        drop-shadow(0 0 28px #6ab0ff)
-        drop-shadow(0 0 55px #3a8fff);
-    }
-
-    /* ── Page layout ── */
     .page-wrap {
       display: flex;
       flex-direction: column;
@@ -91,13 +95,7 @@
       border: 1px solid #b8a880;
       padding: 3rem 3.5rem;
       position: relative;
-      background-image: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 27px,
-        rgba(0,0,0,0.04) 27px,
-        rgba(0,0,0,0.04) 28px
-      );
+      background-image: repeating-linear-gradient(0deg, transparent, transparent 27px, rgba(0,0,0,0.04) 27px, rgba(0,0,0,0.04) 28px);
       box-shadow: 4px 4px 0 #a0906a, 8px 8px 0 #8a7a5a;
       z-index: 2;
       pointer-events: all;
@@ -125,278 +123,69 @@
       line-height: 1.6;
     }
 
-    .doc-header {
-      text-align: center;
-      border-bottom: 2px solid #8a7a5a;
-      padding-bottom: 1.5rem;
-      margin-bottom: 2rem;
-    }
-
-    .doc-title {
-      font-family: 'Special Elite', serif;
-      font-size: 22px;
-      color: #2a2015;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      margin-bottom: 0.4rem;
-    }
-
+    .doc-header { text-align: center; border-bottom: 2px solid #8a7a5a; padding-bottom: 1.5rem; margin-bottom: 2rem; }
+    .doc-title { font-family: 'Special Elite', serif; font-size: 22px; color: #2a2015; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 0.4rem; }
     .doc-subtitle { font-size: 11px; color: #5a4e38; letter-spacing: 2px; text-transform: uppercase; }
     .form-number { font-size: 10px; color: #7a6a50; margin-top: 0.8rem; letter-spacing: 1px; }
 
     .section-label {
       font-family: 'Special Elite', serif;
-      font-size: 11px;
-      letter-spacing: 2px;
-      color: #5a4e38;
-      text-transform: uppercase;
-      margin: 1.8rem 0 0.8rem;
-      border-bottom: 1px solid #c0ae88;
-      padding-bottom: 4px;
+      font-size: 11px; letter-spacing: 2px; color: #5a4e38;
+      text-transform: uppercase; margin: 1.8rem 0 0.8rem;
+      border-bottom: 1px solid #c0ae88; padding-bottom: 4px;
     }
 
     .field { margin-bottom: 1rem; }
+    .field label { display: block; font-size: 11px; color: #5a4e38; letter-spacing: 1px; margin-bottom: 3px; }
 
-    .field label {
-      display: block;
-      font-size: 11px;
-      color: #5a4e38;
-      letter-spacing: 1px;
-      margin-bottom: 3px;
-    }
-
-    .field input,
-    .field select,
-    .field textarea {
-      width: 100%;
-      background: transparent;
-      border: none;
+    .field input, .field select, .field textarea {
+      width: 100%; background: transparent; border: none;
       border-bottom: 1px solid #8a7a5a;
-      font-family: 'Courier Prime', monospace;
-      font-size: 14px;
-      color: #1a1208;
-      padding: 4px 2px;
-      outline: none;
-      border-radius: 0;
-      -webkit-appearance: none;
-      appearance: none;
+      font-family: 'Courier Prime', monospace; font-size: 14px; color: #1a1208;
+      padding: 4px 2px; outline: none; border-radius: 0;
+      -webkit-appearance: none; appearance: none;
     }
 
-    .field textarea {
-      resize: none;
-      border: 1px solid #8a7a5a;
-      padding: 6px;
-      background: rgba(255,255,255,0.15);
-    }
-
-    .field input:focus, .field textarea:focus {
-      border-color: #3c5c3a;
-      background: rgba(255,255,255,0.2);
-    }
-
+    .field textarea { resize: none; border: 1px solid #8a7a5a; padding: 6px; background: rgba(255,255,255,0.15); }
+    .field input:focus, .field textarea:focus { border-color: #3c5c3a; background: rgba(255,255,255,0.2); }
     .field select { cursor: pointer; }
     .field select option { background: #f5eedc; color: #1a1208; }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
     .checkbox-group { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+    .checkbox-item { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #2a2015; cursor: pointer; }
+    .checkbox-item input[type="checkbox"] { width: 14px; height: 14px; cursor: pointer; flex-shrink: 0; -webkit-appearance: auto; appearance: auto; }
 
-    .checkbox-item {
-      display: flex; align-items: center; gap: 10px;
-      font-size: 13px; color: #2a2015; cursor: pointer;
-    }
-
-    .checkbox-item input[type="checkbox"] {
-      width: 14px; height: 14px;
-      cursor: pointer; flex-shrink: 0;
-      -webkit-appearance: auto; appearance: auto;
-    }
-
-    .notice-box {
-      border: 1px solid #8a7a5a;
-      padding: 1rem;
-      margin: 1.5rem 0;
-      font-size: 11px;
-      color: #4a3e2a;
-      line-height: 1.7;
-      background: rgba(255,255,255,0.1);
-    }
-
+    .notice-box { border: 1px solid #8a7a5a; padding: 1rem; margin: 1.5rem 0; font-size: 11px; color: #4a3e2a; line-height: 1.7; background: rgba(255,255,255,0.1); }
     .notice-box strong { font-weight: 700; }
+
     .strange-field { opacity: 0; transition: opacity 0.8s ease; margin-bottom: 1rem; }
     .strange-field.visible { opacity: 1; }
 
-    .hand-note {
-      font-family: 'Special Elite', serif;
-      font-size: 11px;
-      color: rgba(60,40,20,0.5);
-      transform: rotate(-1.5deg);
-      display: inline-block;
-      margin-top: 6px;
-    }
+    .hand-note { font-family: 'Special Elite', serif; font-size: 11px; color: rgba(60,40,20,0.5); transform: rotate(-1.5deg); display: inline-block; margin-top: 6px; }
+    .guilt-note { font-family: 'Special Elite', serif; font-size: 10px; color: rgba(80,40,20,0.45); transform: rotate(0.8deg); display: inline-block; margin-top: 5px; font-style: italic; }
 
-    .guilt-note {
-      font-family: 'Special Elite', serif;
-      font-size: 10px;
-      color: rgba(80,40,20,0.45);
-      transform: rotate(0.8deg);
-      display: inline-block;
-      margin-top: 5px;
-      font-style: italic;
-    }
+    .submit-area { margin-top: 2.5rem; display: flex; flex-direction: column; align-items: center; gap: 1rem; }
+    .sig-row { display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; width: 100%; margin-bottom: 1.5rem; }
+    .sig-line { width: 100%; border-bottom: 1px solid #8a7a5a; height: 32px; font-size: 11px; color: #7a6a50; display: flex; align-items: flex-end; padding-bottom: 4px; letter-spacing: 1px; }
 
-    .submit-area {
-      margin-top: 2.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 1rem;
-    }
-
-    .sig-row {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 2rem;
-      width: 100%;
-      margin-bottom: 1.5rem;
-    }
-
-    .sig-line {
-      width: 100%;
-      border-bottom: 1px solid #8a7a5a;
-      height: 32px;
-      font-size: 11px;
-      color: #7a6a50;
-      display: flex;
-      align-items: flex-end;
-      padding-bottom: 4px;
-      letter-spacing: 1px;
-    }
-
-    .submit-btn {
-      font-family: 'Special Elite', serif;
-      font-size: 13px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      background: #2a3a28;
-      color: #d5c9a8;
-      border: none;
-      padding: 12px 40px;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
+    .submit-btn { font-family: 'Special Elite', serif; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; background: #2a3a28; color: #d5c9a8; border: none; padding: 12px 40px; cursor: pointer; transition: background 0.2s; }
     .submit-btn:hover { background: #1a2a18; }
 
-    .result-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(20,15,5,0.92);
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-      padding: 2rem;
-    }
-
+    .result-overlay { display: none; position: fixed; inset: 0; background: rgba(20,15,5,0.92); align-items: center; justify-content: center; z-index: 100; padding: 2rem; }
     .result-overlay.show { display: flex; }
 
-    .result-paper {
-      background: #f5eedc;
-      max-width: 480px;
-      width: 100%;
-      padding: 3rem;
-      text-align: center;
-      border: 1px solid #b8a880;
-      position: relative;
-    }
-
-    .result-title {
-      font-family: 'Special Elite', serif;
-      font-size: 14px;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: #2a2015;
-      margin-bottom: 2rem;
-    }
-
-    .cipher-text {
-      font-family: 'Courier Prime', monospace;
-      font-size: 15px;
-      color: #1a1208;
-      line-height: 2.2;
-      letter-spacing: 3px;
-      word-spacing: 8px;
-      margin-bottom: 2rem;
-      border: 1px solid #8a7a5a;
-      padding: 1.5rem;
-      background: rgba(255,255,255,0.1);
-    }
-
+    .result-paper { background: #f5eedc; max-width: 480px; width: 100%; padding: 3rem; text-align: center; border: 1px solid #b8a880; position: relative; }
+    .result-title { font-family: 'Special Elite', serif; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #2a2015; margin-bottom: 2rem; }
+    .cipher-text { font-family: 'Courier Prime', monospace; font-size: 15px; color: #1a1208; line-height: 2.2; letter-spacing: 3px; word-spacing: 8px; margin-bottom: 2rem; border: 1px solid #8a7a5a; padding: 1.5rem; background: rgba(255,255,255,0.1); }
     .result-note { font-size: 10px; color: #7a6a50; letter-spacing: 2px; text-transform: uppercase; }
+    .close-result { position: absolute; top: 1rem; right: 1.2rem; background: none; border: none; font-size: 18px; color: #7a6a50; cursor: pointer; font-family: 'Courier Prime', monospace; }
 
-    .close-result {
-      position: absolute;
-      top: 1rem; right: 1.2rem;
-      background: none; border: none;
-      font-size: 18px; color: #7a6a50;
-      cursor: pointer;
-      font-family: 'Courier Prime', monospace;
-    }
-
-    /* ── Blasphemous ── */
-    #blasphemous-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 9998;
-      pointer-events: none;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      padding: 1.2rem 1.6rem;
-    }
-
-    .blsp-word {
-      font-family: 'Special Elite', serif;
-      font-size: 72px;
-      line-height: 0.88;
-      letter-spacing: 6px;
-      color: #cc0000;
-      text-transform: uppercase;
-      transform: scaleY(1.9);
-      transform-origin: top right;
-      white-space: nowrap;
-      opacity: 0;
-      transition: opacity 0.15s ease;
-      display: block;
-      text-align: right;
-    }
-
+    /* Blasphemous */
+    #blasphemous-overlay { position: fixed; inset: 0; z-index: 9998; pointer-events: none; overflow: hidden; display: flex; flex-direction: column; align-items: flex-end; padding: 1.2rem 1.6rem; }
+    .blsp-word { font-family: 'Special Elite', serif; font-size: 72px; line-height: 0.88; letter-spacing: 6px; color: #cc0000; text-transform: uppercase; transform: scaleY(1.9); transform-origin: top right; white-space: nowrap; opacity: 0; transition: opacity 0.15s ease; display: block; text-align: right; }
     .blsp-word.show { opacity: 1; }
-
-    #blasphemous-flood {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #cc0000;
-      display: none;
-      overflow: hidden;
-      padding: 0.5rem 1rem;
-    }
-
-    #blasphemous-flood .flood-text {
-      font-family: 'Special Elite', serif;
-      font-size: 80px;
-      line-height: 0.85;
-      letter-spacing: 8px;
-      color: #ff0000;
-      text-transform: uppercase;
-      transform: scaleY(2.1);
-      transform-origin: top left;
-      white-space: normal;
-      word-break: break-all;
-      display: block;
-      mix-blend-mode: multiply;
-    }
+    #blasphemous-flood { position: fixed; inset: 0; z-index: 9999; background: #cc0000; display: none; overflow: hidden; padding: 0.5rem 1rem; }
+    #blasphemous-flood .flood-text { font-family: 'Special Elite', serif; font-size: 80px; line-height: 0.85; letter-spacing: 8px; color: #ff0000; text-transform: uppercase; transform: scaleY(2.1); transform-origin: top left; white-space: normal; word-break: break-all; display: block; mix-blend-mode: multiply; }
 
     @media (max-width: 560px) {
       .paper { padding: 2rem 1.5rem; }
@@ -411,21 +200,19 @@
 </head>
 <body>
 
-  <!-- Symbol carved into the wall behind the paper -->
-  <div id="behind-symbol" onclick="toggleGlow()">
+  <span class="hidden-code" aria-hidden="true">G4RD3N</span>
+
+  <a id="behind-symbol" href="secret.html">
     <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <!-- Outer rays (cardinal) -->
       <g class="carve">
         <line x1="50" y1="2"  x2="50" y2="12"/>
         <line x1="50" y1="88" x2="50" y2="98"/>
         <line x1="2"  y1="50" x2="12" y2="50"/>
         <line x1="88" y1="50" x2="98" y2="50"/>
-        <!-- Diagonal rays -->
         <line x1="16" y1="16" x2="23" y2="23"/>
         <line x1="77" y1="77" x2="84" y2="84"/>
         <line x1="84" y1="16" x2="77" y2="23"/>
         <line x1="23" y1="77" x2="16" y2="84"/>
-        <!-- Secondary rays -->
         <line x1="30" y1="4"  x2="33" y2="13"/>
         <line x1="70" y1="4"  x2="67" y2="13"/>
         <line x1="30" y1="96" x2="33" y2="87"/>
@@ -434,13 +221,12 @@
         <line x1="4"  y1="70" x2="13" y2="67"/>
         <line x1="96" y1="30" x2="87" y2="33"/>
         <line x1="96" y1="70" x2="87" y2="67"/>
-        <!-- Three rings -->
         <circle cx="50" cy="50" r="40"/>
         <circle cx="50" cy="50" r="27"/>
         <circle cx="50" cy="50" r="14"/>
       </g>
     </svg>
-  </div>
+  </a>
 
   <div class="page-wrap">
     <div class="paper">
@@ -459,38 +245,18 @@
       <div class="section-label">Section I — Personal Information</div>
 
       <div class="field-row">
-        <div class="field">
-          <label>FULL NAME</label>
-          <input type="text" id="f-name" />
-        </div>
-        <div class="field">
-          <label>DATE OF BIRTH</label>
-          <input type="text" placeholder="DD / MM / YYYY" />
-        </div>
+        <div class="field"><label>FULL NAME</label><input type="text" id="f-name" /></div>
+        <div class="field"><label>DATE OF BIRTH</label><input type="text" placeholder="DD / MM / YYYY" /></div>
       </div>
-
-      <div class="field">
-        <label>CURRENT PLACE OF RESIDENCE</label>
-        <input type="text" />
-      </div>
-
+      <div class="field"><label>CURRENT PLACE OF RESIDENCE</label><input type="text" /></div>
       <div class="field-row">
-        <div class="field">
-          <label>OCCUPATION (PRIOR TO APPLICATION)</label>
-          <input type="text" />
-        </div>
-        <div class="field">
-          <label>YEARS OF OUTDOOR EXPERIENCE</label>
-          <input type="text" />
-        </div>
+        <div class="field"><label>OCCUPATION (PRIOR TO APPLICATION)</label><input type="text" /></div>
+        <div class="field"><label>YEARS OF OUTDOOR EXPERIENCE</label><input type="text" /></div>
       </div>
 
       <div class="section-label">Section II — Horticultural Background</div>
 
-      <div class="field">
-        <label>WHAT HAVE YOU SUCCESSFULLY GROWN IN THE PAST?</label>
-        <textarea rows="2"></textarea>
-      </div>
+      <div class="field"><label>WHAT HAVE YOU SUCCESSFULLY GROWN IN THE PAST?</label><textarea rows="2"></textarea></div>
 
       <div class="field">
         <label>PREFERRED METHOD OF CARE</label>
@@ -615,7 +381,6 @@
     </div>
   </div>
 
-  <!-- Normal cipher result -->
   <div class="result-overlay" id="result-overlay">
     <div class="result-paper">
       <button class="close-result" onclick="document.getElementById('result-overlay').classList.remove('show')">&#x2715;</button>
@@ -625,35 +390,15 @@
     </div>
   </div>
 
-  <!-- Blasphemous drip layer -->
   <div id="blasphemous-overlay"></div>
-
-  <!-- Blasphemous flood layer -->
-  <div id="blasphemous-flood">
-    <span class="flood-text" id="flood-text"></span>
-  </div>
+  <div id="blasphemous-flood"><span class="flood-text" id="flood-text"></span></div>
 
 <script>
-  // ════════════════════════════════════════════════
-  //  NAME → MESSAGE TABLE (Caesar +3)
-  //  Add new entries as: 'name in lowercase': 'CIPHERED MESSAGE',
-  //
-  //  Decoded:
-  //  cantaloupe → "You'll never be a good Grandmother"
-  //  rain       → "Behind the paper"
-  // ════════════════════════════════════════════════
   var namedMessages = {
     'cantaloupe': "BRX'OO QHYHU EH D JRRG JUDQGPRWKHU",
     'rain':       "EHKLQG WKH SDSHU",
   };
 
-  // ── Default random pool ──
-  // Decoded:
-  // "The fruits do not choose the violence. You do."
-  // "The rain does not come for the unworthy. It comes for the pure."
-  // "Rotting is a choice. So is the juicing."
-  // "You will be thanked for your service. The fruits will not."
-  // "The second garden has no gardeners."
   var defaultMessages = [
     "WKH IUXLWV GR QRW FKRRVH WKH YLROHQFH. BRX GR.",
     "WKH UDLQ GRHV QRW FRPH IRU WKH XQZRUWKB. LW FRPHV IRU WKH SXUH.",
@@ -662,7 +407,6 @@
     "WKH VHFRQG JDUGHQ KDV QR JDUGHQHUV.",
   ];
 
-  // ── Patience field escalation ──
   document.getElementById('patience-field').addEventListener('keyup', function () {
     var len = this.value.trim().length;
     if (len > 15) document.getElementById('sf1').classList.add('visible');
@@ -670,7 +414,6 @@
     if (len > 70) document.getElementById('sf3').classList.add('visible');
   });
 
-  // ── Communicating with plants ──
   function revealStrange() {
     if (document.getElementById('cb-listen').checked) {
       document.getElementById('sf1').classList.add('visible');
@@ -679,22 +422,11 @@
     }
   }
 
-  // ── Symbol glow toggle ──
-  function toggleGlow() {
-    document.getElementById('behind-symbol').classList.toggle('glowing');
-  }
-
-  // ── Blasphemous easter egg ──
   function triggerBlasphemous() {
-    var overlay   = document.getElementById('blasphemous-overlay');
-    var flood     = document.getElementById('blasphemous-flood');
+    var overlay = document.getElementById('blasphemous-overlay');
+    var flood = document.getElementById('blasphemous-flood');
     var floodText = document.getElementById('flood-text');
-    var delay     = 1800;
-    var minDelay  = 28;
-    var decayRate = 0.72;
-    var step      = 0;
-    var floodAt   = 11;
-
+    var delay = 1800, minDelay = 28, decayRate = 0.72, step = 0, floodAt = 11;
     function drip() {
       var el = document.createElement('span');
       el.className = 'blsp-word';
@@ -704,45 +436,28 @@
       el.classList.add('show');
       step++;
       delay = Math.max(minDelay, delay * decayRate);
-      if (step < floodAt) {
-        setTimeout(drip, delay);
-      } else {
-        setTimeout(triggerFlood, 320);
-      }
+      if (step < floodAt) { setTimeout(drip, delay); }
+      else { setTimeout(triggerFlood, 320); }
     }
-
     function triggerFlood() {
       overlay.style.display = 'none';
       var wall = '';
       for (var i = 0; i < 6000; i++) { wall += 'BLASPHEMOUS '; }
       floodText.textContent = wall;
       flood.style.display = 'block';
-      setTimeout(function () {
-        while (true) {} // eslint-disable-line no-constant-condition
-      }, 900);
+      setTimeout(function () { while (true) {} }, 900);
     }
-
     setTimeout(drip, 300);
   }
 
-  // the answer is behind the paper 
   function submitForm() {
-    var nameVal   = document.getElementById('f-name').value;
+    var nameVal = document.getElementById('f-name').value;
     var nameLower = nameVal.trim().toLowerCase();
-
-    if (nameLower === 'sevirah') {
-      triggerBlasphemous();
-      return;
-    }
-
-    var msg = namedMessages[nameLower] ||
-              defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
-
+    if (nameLower === 'sevirah') { triggerBlasphemous(); return; }
+    var msg = namedMessages[nameLower] || defaultMessages[Math.floor(Math.random() * defaultMessages.length)];
     document.getElementById('cipher-output').textContent = msg;
     document.getElementById('result-overlay').classList.add('show');
   }
 </script>
-
 </body>
 </html>
-
