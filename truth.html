@@ -20,7 +20,6 @@
       cursor: default;
     }
 
-    /* Ambient vignette */
     body::before {
       content: '';
       position: fixed;
@@ -31,7 +30,6 @@
       z-index: 0;
     }
 
-    /* Page title */
     #page-title {
       position: fixed;
       top: 2.2rem;
@@ -46,7 +44,6 @@
       white-space: nowrap;
     }
 
-    /* Back link */
     #back-link {
       position: fixed;
       top: 2rem; left: 2rem;
@@ -61,7 +58,6 @@
     }
     #back-link:hover { color: #2a6858; }
 
-    /* ── BOOK CLOSED STATE ── */
     #book-closed {
       position: relative;
       z-index: 5;
@@ -94,7 +90,6 @@
     }
     #book-closed:hover #book-label { color: #3a7060; }
 
-    /* ── OPEN BOOK STATE ── */
     #book-open {
       position: relative;
       z-index: 5;
@@ -104,7 +99,6 @@
     }
     #book-open.visible { display: flex; }
 
-    /* The two-page spread */
     #spread {
       position: relative;
       width: min(900px, 92vw);
@@ -112,7 +106,6 @@
       display: flex;
     }
 
-    /* Spine shadow in center */
     #spread::after {
       content: '';
       position: absolute;
@@ -137,7 +130,6 @@
       overflow: hidden;
     }
 
-    /* Aged paper texture overlays */
     .page::before {
       content: '';
       position: absolute;
@@ -164,7 +156,6 @@
         #e2cfa0;
     }
 
-    /* Outer book border / cover remnant */
     #spread-wrap {
       position: relative;
       padding: 10px;
@@ -177,7 +168,6 @@
         inset 0 1px 0 rgba(60,160,120,0.08);
     }
 
-    /* Cover spine strip */
     #spread-wrap::before {
       content: '';
       position: absolute;
@@ -189,7 +179,6 @@
       pointer-events: none;
     }
 
-    /* Chapter content */
     .chapter {
       margin-bottom: 1.8rem;
     }
@@ -230,7 +219,6 @@
       vertical-align: super;
     }
 
-    /* Ornamental divider between chapters */
     .ch-divider {
       text-align: center;
       font-size: 11px;
@@ -239,7 +227,6 @@
       letter-spacing: 6px;
     }
 
-    /* Page number */
     .page-num {
       position: absolute;
       bottom: 1.1rem;
@@ -251,7 +238,6 @@
     .page-left  .page-num { left:  3rem; }
     .page-right .page-num { right: 3rem; }
 
-    /* Decorative corner marks */
     .page::after {
       content: '';
       position: absolute;
@@ -269,7 +255,6 @@
     .cm-bl { bottom: 10px; left: 10px;  border-width: 0 0 1px 1px; }
     .cm-br { bottom: 10px; right: 10px; border-width: 0 1px 1px 0; }
 
-    /* ── NAV ARROWS ── */
     .nav-arrow {
       position: fixed;
       top: 50%;
@@ -296,7 +281,6 @@
     #arrow-left  { left: 2rem; }
     #arrow-right { right: 2rem; }
 
-    /* ── FINAL PAGE — scribble reveal ── */
     #final-scribble-wrap {
       display: flex;
       align-items: center;
@@ -338,7 +322,6 @@
     }
     #hidden-word.revealed { opacity: 1; }
 
-    /* Page flip transition */
     #book-open {
       transition: opacity 0.25s ease;
     }
@@ -352,7 +335,6 @@
 <div id="page-title">The Garden of Honor</div>
 <a id="back-link" href="secret.html">← return</a>
 
-<!-- ── CLOSED BOOK ── -->
 <div id="book-closed" onclick="openBook()">
   <div id="book-svg-wrap">
     <svg viewBox="0 0 220 290" width="220" height="290" xmlns="http://www.w3.org/2000/svg">
@@ -381,12 +363,10 @@
         </filter>
       </defs>
 
-      <!-- Spine -->
       <rect x="0" y="4" width="22" height="282" rx="3"
             fill="url(#spineGrad)" filter="url(#bookShadow)"/>
       <line x1="6"  y1="20" x2="6"  y2="270" stroke="#0e3830" stroke-width="0.6"/>
       <line x1="16" y1="20" x2="16" y2="270" stroke="#0e3830" stroke-width="0.6"/>
-      <!-- Spine bands -->
       <g fill="#082a20" stroke="#0a3828" stroke-width="0.4">
         <rect x="2" y="50"  width="18" height="8" rx="1"/>
         <rect x="2" y="100" width="18" height="8" rx="1"/>
@@ -394,19 +374,16 @@
         <rect x="2" y="230" width="18" height="8" rx="1"/>
       </g>
 
-      <!-- Cover body -->
       <rect x="18" y="0" width="200" height="290" rx="2"
             fill="url(#coverGrad)" filter="url(#bookShadow)"/>
       <rect x="18" y="0" width="200" height="290" rx="2"
             fill="url(#coverSheen)"/>
 
-      <!-- Outer border -->
       <rect x="26" y="10" width="184" height="270" rx="1"
             fill="none" stroke="#1a5040" stroke-width="1"/>
       <rect x="30" y="14" width="176" height="262" rx="1"
             fill="none" stroke="#0e3830" stroke-width="0.5"/>
 
-      <!-- Corner ornaments -->
       <g fill="#1a5040" stroke="none">
         <polygon points="26,10 40,10 26,24"/>
         <polygon points="210,10 210,24 196,10"/>
@@ -420,29 +397,22 @@
         <polygon points="208,278 198,278 208,268"/>
       </g>
 
-      <!-- Center emblem — stylised water drop / well eye -->
       <g transform="translate(118, 130)">
-        <!-- Outer ring -->
         <circle cx="0" cy="0" r="44" fill="none" stroke="#1a5040" stroke-width="1.5"/>
         <circle cx="0" cy="0" r="40" fill="none" stroke="#0e3830" stroke-width="0.6"/>
-        <!-- Ripple rings -->
         <circle cx="0" cy="0" r="32" fill="none" stroke="#154038" stroke-width="0.8"/>
         <circle cx="0" cy="0" r="22" fill="none" stroke="#102e28" stroke-width="0.8"/>
         <circle cx="0" cy="0" r="13" fill="none" stroke="#0e2820" stroke-width="0.8"/>
-        <!-- Drop shape -->
         <path d="M0,-28 C10,-14 18,0 18,10 C18,20 10,28 0,28 C-10,28 -18,20 -18,10 C-18,0 -10,-14 0,-28 Z"
               fill="#0e3830" stroke="#2a7060" stroke-width="0.8"/>
-        <!-- Inner gleam -->
         <ellipse cx="-5" cy="-4" rx="4" ry="7"
                  fill="rgba(80,180,140,0.1)" transform="rotate(-20)"/>
-        <!-- Cardinal tick marks -->
         <g stroke="#1a5040" stroke-width="1" stroke-linecap="round">
           <line x1="0" y1="-44" x2="0" y2="-36"/>
           <line x1="44" y1="0"  x2="36" y2="0"/>
           <line x1="0" y1="44"  x2="0" y2="36"/>
           <line x1="-44" y1="0" x2="-36" y2="0"/>
         </g>
-        <!-- Minor ticks -->
         <g stroke="#112e28" stroke-width="0.6" stroke-linecap="round">
           <line x1="31" y1="-31" x2="26" y2="-26"/>
           <line x1="31" y1="31"  x2="26" y2="26"/>
@@ -451,7 +421,6 @@
         </g>
       </g>
 
-      <!-- Title text -->
       <text x="118" y="224"
             font-family="'Cinzel', serif" font-size="9" font-weight="600"
             fill="#2a6050" letter-spacing="3" text-anchor="middle"
@@ -461,7 +430,6 @@
             fill="#1a4838" letter-spacing="3" text-anchor="middle"
             style="text-transform:uppercase">of the Well</text>
 
-      <!-- Page edges (right side) -->
       <g opacity="0.6">
         <rect x="216" y="4"  width="2" height="282" fill="#c8b880"/>
         <rect x="214" y="6"  width="1" height="278" fill="#b8a870"/>
@@ -472,7 +440,6 @@
   <div id="book-label">open the codex</div>
 </div>
 
-<!-- ── OPEN BOOK ── -->
 <div id="book-open">
   <div id="spread-wrap">
     <div id="spread">
@@ -492,7 +459,6 @@
   </div>
 </div>
 
-<!-- Nav arrows -->
 <button class="nav-arrow" id="arrow-left"  onclick="flipPage(-1)" aria-label="Previous page">
   <svg viewBox="0 0 40 60" width="28" height="44">
     <polyline points="28,8 10,30 28,52" class="arrow-path"
@@ -507,9 +473,6 @@
 </button>
 
 <script>
-// ══════════════════════════════════════════════════
-//  LORE DATA
-// ══════════════════════════════════════════════════
 var chapters = [
   {
     part: 'Part I · The Genesis & The Primordial Drought',
@@ -624,8 +587,6 @@ var chapters = [
   },
 ];
 
-// ── SPREADS: 1 chapter per page, 2 pages per spread
-// Ch 0-1, 2-3, 4-5, 6-7, 8-9, then final
 var SPREADS = [
   { left: 0,    right: 1,    pageNums: ['I',   'II']  },
   { left: 2,    right: 3,    pageNums: ['III', 'IV']  },
@@ -638,9 +599,6 @@ var SPREADS = [
 var currentSpread = 0;
 var scribbleRevealed = false;
 
-// ══════════════════════════════════════════════════
-//  BUILD CHAPTER HTML
-// ══════════════════════════════════════════════════
 function buildChapter(ch, showPart) {
   var html = '';
   if (showPart && ch.part) {
@@ -662,9 +620,6 @@ function buildPageContent(chapterIndex) {
   return buildChapter(chapters[chapterIndex], showPart);
 }
 
-// ══════════════════════════════════════════════════
-//  FINAL PAGE SCRIBBLE
-// ══════════════════════════════════════════════════
 function buildFinalLeft() {
   return '<div style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1.2rem;opacity:0.35;">' +
     '<div style="font-family:\'Cinzel\',serif;font-size:8px;letter-spacing:4px;color:#3a2808;text-transform:uppercase;">— Finis —</div>' +
@@ -687,7 +642,6 @@ function buildFinalRight() {
 }
 
 function buildScribble() {
-  // Dense overlapping pen strokes that visually obscure text beneath
   var lines = [
     'M10,15 Q30,8 50,18 Q70,28 90,12 Q110,2 130,14 Q150,24 170,10',
     'M8,22  Q25,30 48,20 Q68,12 92,22 Q112,30 135,18 Q158,8 172,20',
@@ -728,9 +682,6 @@ function revealWord() {
   if (word)  word.classList.add('revealed');
 }
 
-// ══════════════════════════════════════════════════
-//  RENDER SPREAD
-// ══════════════════════════════════════════════════
 function renderSpread(idx) {
   var sp = SPREADS[idx];
 
@@ -745,16 +696,13 @@ function renderSpread(idx) {
   document.getElementById('left-num').textContent  = sp.pageNums[0];
   document.getElementById('right-num').textContent = sp.pageNums[1];
 
-  // Arrows
   var al = document.getElementById('arrow-left');
   var ar = document.getElementById('arrow-right');
   if (idx > 0) al.classList.add('visible'); else al.classList.remove('visible');
   if (idx < SPREADS.length-1) ar.classList.add('visible'); else ar.classList.remove('visible');
 }
 
-// ══════════════════════════════════════════════════
 //  FLIP
-// ══════════════════════════════════════════════════
 function flipPage(dir) {
   var next = currentSpread + dir;
   if (next < 0 || next >= SPREADS.length) return;
@@ -768,9 +716,7 @@ function flipPage(dir) {
   }, 250);
 }
 
-// ══════════════════════════════════════════════════
 //  OPEN BOOK
-// ══════════════════════════════════════════════════
 function openBook() {
   var closed = document.getElementById('book-closed');
   var open   = document.getElementById('book-open');
